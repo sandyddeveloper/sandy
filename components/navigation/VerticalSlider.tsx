@@ -2,17 +2,18 @@
 
 import { motion, useMotionValue } from "framer-motion"
 import { ChevronUp, ChevronDown } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
-const sections = ["Hero", "Work", "Skills", "Projects", "Contact"]
+const sections = ["Hero", "Skills", "Work", "Projects", "Contact"]
 
 export default function VerticalSlider() {
   const [activeIndex, setActiveIndex] = useState(0)
 
   const height = 160
   const itemHeight = height / sections.length
-
   const y = useMotionValue(0)
+
+  /* ================= SCROLL TO SECTION ================= */
 
   const scrollToSection = (index: number) => {
     setActiveIndex(index)
@@ -23,13 +24,43 @@ export default function VerticalSlider() {
       ?.scrollIntoView({ behavior: "smooth" })
   }
 
+  /* ================= DRAG END ================= */
+
   const handleDragEnd = () => {
     const raw = y.get()
     const index = Math.round(raw / itemHeight)
     const clamped = Math.max(0, Math.min(index, sections.length - 1))
-
     scrollToSection(clamped)
   }
+
+  /* ================= SCROLL SPY ================= */
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = []
+
+    sections.forEach((section, index) => {
+      const el = document.getElementById(section.toLowerCase())
+      if (!el) return
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActiveIndex(index)
+            y.set(index * itemHeight)
+          }
+        },
+        {
+          root: null,
+          threshold: 0.55, // section must be ~55% visible
+        }
+      )
+
+      observer.observe(el)
+      observers.push(observer)
+    })
+
+    return () => observers.forEach(o => o.disconnect())
+  }, [itemHeight, y])
 
   return (
     <div className="relative select-none">

@@ -4,34 +4,14 @@ import React, {
   useState,
   useMemo,
   useCallback,
-  useEffect,
 } from "react"
 import { motion } from "framer-motion"
 import { GraduationCap } from "lucide-react"
-import { useWindowVirtualizer } from "@tanstack/react-virtual"
 
 import TechCard from "./TechCard"
 import EducationCard from "./EducationCard"
 import ViewModal from "../shared/ViewModal"
 import type { EducationItem, TechItem } from "@/types/tech"
-
-/* ================= HELPERS ================= */
-
-const getColumnCount = () => {
-  if (typeof window === "undefined") return 3
-  if (window.innerWidth < 640) return 1   // mobile
-  if (window.innerWidth < 1024) return 2  // tablet
-  return 3                                // desktop
-}
-
-const getRowHeight = () => {
-  if (typeof window === "undefined") return 260
-  if (window.innerWidth < 640) return 320
-  if (window.innerWidth < 1024) return 280
-  return 260
-}
-
-/* ================= COMPONENT ================= */
 
 export default function TechGrid({
   techStackData,
@@ -43,19 +23,6 @@ export default function TechGrid({
   const [category, setCategory] = useState<"all" | TechItem["category"]>("all")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalData, setModalData] = useState<any>({})
-
-  const [columnCount, setColumnCount] = useState(getColumnCount)
-  const [rowHeight, setRowHeight] = useState(getRowHeight)
-
-  /* -------- HANDLE RESIZE -------- */
-  useEffect(() => {
-    const onResize = () => {
-      setColumnCount(getColumnCount())
-      setRowHeight(getRowHeight())
-    }
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
-  }, [])
 
   /* -------- MODAL -------- */
   const openModal = useCallback((data: any) => {
@@ -69,18 +36,8 @@ export default function TechGrid({
     return techStackData.filter(t => t.category === category)
   }, [category, techStackData])
 
-  /* -------- PAGE SCROLL VIRTUALIZATION -------- */
-  const rowCount = Math.ceil(filteredTech.length / columnCount)
-
-  const rowVirtualizer = useWindowVirtualizer({
-    count: rowCount,
-    estimateSize: () => rowHeight,
-    overscan: 4,
-  })
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#041b13] via-[#052e1d] to-black text-white px-4 py-12">
-
       {/* ================= HEADER ================= */}
       <motion.div
         initial={{ y: -30, opacity: 0 }}
@@ -100,7 +57,11 @@ export default function TechGrid({
         {["all", "frontend", "backend", "database", "tooling"].map(c => (
           <button
             key={c}
-            onClick={() => setCategory(c as any)}
+            onClick={() => {
+              if (category !== c) {
+                setCategory(c as any)
+              }
+            }}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition
               ${
                 category === c
@@ -113,44 +74,30 @@ export default function TechGrid({
         ))}
       </div>
 
-      {/* ================= TECH GRID (PAGE SCROLL) ================= */}
-      <div className="relative">
-        <div className="mx-auto max-w-[1000px] px-2 relative">
-          <div
-            style={{
-              height: rowVirtualizer.getTotalSize(),
-              position: "relative",
-            }}
-          >
-            {rowVirtualizer.getVirtualItems().map(row => {
-              const start = row.index * columnCount
-              const rowItems = filteredTech.slice(start, start + columnCount)
-
-              return (
-                <div
-                  key={row.key}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: rowHeight,
-                    transform: `translateY(${row.start}px)`,
-                  }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-                >
-                  {rowItems.map(tech => (
-                    <TechCard
-                      key={tech.id}
-                      tech={tech}
-                      onClick={openModal}
-                    />
-                  ))}
-                </div>
-              )
-            })}
-          </div>
+      {/* ================= TECH GRID ================= */}
+      <div className="mx-auto max-w-[1000px] px-2 mb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {filteredTech.map(tech => (
+            <TechCard
+              key={tech.id}
+              tech={tech}
+              onClick={openModal}
+            />
+          ))}
         </div>
+        
+        {/* Empty state */}
+        {filteredTech.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-semibold text-gray-300 mb-2">
+              No technologies found
+            </h3>
+            <p className="text-gray-400">
+              Try selecting a different category
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ================= EDUCATION ================= */}

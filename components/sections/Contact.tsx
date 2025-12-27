@@ -78,21 +78,26 @@ export default function ContactSection() {
     }
 
     return (
-        <section className="relative mt-28 border-t border-emerald-500/15 bg-black overflow-hidden">
-            <Toaster position="top-right" />
+        <section id="contact" className="relative mt-28 border-t border-emerald-500/15 bg-black overflow-hidden">
+            <Toaster 
+                position="top-right"
+                toastOptions={{
+                    className: "text-sm sm:text-base",
+                }}
+            />
             <ThankYouModal open={showModal} onClose={() => setShowModal(false)} />
 
             {/* 🌿 GREEN FLASH BACKGROUND */}
             <BackgroundGlow />
 
-            <div className="relative mx-auto max-w-[900px] px-4 py-20 z-10">
+            <div className="relative mx-auto max-w-[900px] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 z-10">
                 {/* HEADER */}
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white">
+                <div className="text-center mb-8 sm:mb-12">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                         Contact
                     </h2>
-                    <p className="text-gray-400 mt-2">
-                        Let’s connect — send me a message
+                    <p className="text-gray-400 mt-2 text-sm sm:text-base">
+                        Let's connect — send me a message
                     </p>
                 </div>
 
@@ -101,7 +106,7 @@ export default function ContactSection() {
                     className="
             bg-white/5 backdrop-blur-xl
             border border-white/10
-            rounded-2xl p-6 sm:p-8 space-y-6
+            rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6
           "
                 >
                     {/* HONEYPOT */}
@@ -113,8 +118,8 @@ export default function ContactSection() {
                         className="hidden"
                     />
 
-                    {/* NAMES */}
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    {/* NAMES - Responsive grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <FloatingInput
                             name="firstName"
                             label="First Name"
@@ -148,9 +153,10 @@ export default function ContactSection() {
                         name="subject"
                         required
                         className="
-              w-full px-4 py-4 text-lg bg-black
-              border border-white/10 rounded-xl
+              w-full px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base md:text-lg bg-black
+              border border-white/10 rounded-lg sm:rounded-xl
               text-white focus:border-emerald-400 outline-none
+              transition-all duration-200
             "
                     >
                         <option>Job Opportunity</option>
@@ -166,20 +172,34 @@ export default function ContactSection() {
                         shortcut="Alt + M"
                     />
 
+                    {/* Responsive Submit Button */}
                     <button
                         type="submit"
                         disabled={loading}
                         className="
-              w-full flex items-center justify-center gap-3
-              bg-emerald-500 text-black py-4 rounded-xl
-              font-medium hover:bg-emerald-400 transition
-              disabled:opacity-60
+              w-full flex items-center justify-center gap-2 sm:gap-3
+              bg-emerald-500 text-black 
+              py-3 sm:py-4 
+              rounded-lg sm:rounded-xl
+              text-sm sm:text-base font-medium 
+              hover:bg-emerald-400 transition-all duration-200
+              disabled:opacity-60 disabled:cursor-not-allowed
+              active:scale-95
+              shadow-lg shadow-emerald-500/20
+              hover:shadow-emerald-500/40
             "
                     >
-                        <Send className="w-4 h-4" />
+                        <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         {loading ? "Sending..." : "Send Message"}
-                        <span className="text-xs opacity-70">(Ctrl + Enter)</span>
+                        <span className="hidden sm:inline text-xs opacity-70">(Ctrl + Enter)</span>
                     </button>
+
+                    {/* Mobile shortcut hint */}
+                    <div className="sm:hidden text-center">
+                        <p className="text-xs text-gray-500">
+                            Use <kbd className="px-1.5 py-0.5 mx-1 rounded bg-gray-800 border border-gray-700 text-xs">Alt + key</kbd> shortcuts
+                        </p>
+                    </div>
                 </form>
             </div>
         </section>
@@ -191,7 +211,7 @@ export default function ContactSection() {
 function BackgroundGlow() {
     return (
         <>
-            {/* MAIN GLOW */}
+            {/* MAIN GLOW - Responsive sizing */}
             <motion.div
                 animate={{
                     x: [-80, 80, -80],
@@ -205,10 +225,10 @@ function BackgroundGlow() {
                     ease: "easeInOut",
                 }}
                 className="
-          absolute -top-40 left-1/2 -translate-x-1/2
-          w-[700px] h-[700px]
+          absolute -top-20 sm:-top-40 left-1/2 -translate-x-1/2
+          w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] md:w-[700px] md:h-[700px]
           bg-emerald-500/25
-          rounded-full blur-[140px]
+          rounded-full blur-[80px] sm:blur-[120px] md:blur-[140px]
         "
             />
 
@@ -232,7 +252,6 @@ function BackgroundGlow() {
     )
 }
 
-
 /* ================= FLOATING INPUT ================= */
 
 function FloatingInput({ label, icon: Icon, shortcut, ...props }: any) {
@@ -240,7 +259,7 @@ function FloatingInput({ label, icon: Icon, shortcut, ...props }: any) {
 
     return (
         <div className="relative">
-            <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Icon className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
 
             <input
                 {...props}
@@ -248,28 +267,34 @@ function FloatingInput({ label, icon: Icon, shortcut, ...props }: any) {
                 onFocus={() => setFocused(true)}
                 onBlur={(e) => setFocused(!!e.target.value)}
                 className="
-          w-full pl-12 pr-16 py-4 text-lg bg-black
-          border border-white/10 rounded-xl
+          w-full pl-9 sm:pl-12 pr-12 sm:pr-16 
+          py-2.5 sm:py-3 md:py-4 
+          text-sm sm:text-base md:text-lg 
+          bg-black
+          border border-white/10 
+          rounded-lg sm:rounded-xl
           text-white focus:border-emerald-400 outline-none
+          transition-all duration-200
         "
             />
 
             <motion.label
                 animate={{
                     top: focused ? "6px" : "50%",
-                    fontSize: focused ? "12px" : "16px",
+                    fontSize: focused ? "10px" : "inherit",
                     color: focused ? "#34d399" : "#9ca3af",
                 }}
                 className="
-          absolute left-12 -translate-y-1/2
+          absolute left-9 sm:left-12 -translate-y-1/2
           pointer-events-none bg-black px-1
+          text-xs sm:text-sm md:text-base
         "
             >
                 {label}
             </motion.label>
 
             {shortcut && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-gray-500">
                     {shortcut}
                 </span>
             )}
@@ -284,43 +309,47 @@ function FloatingTextarea({ label, icon: Icon, shortcut, ...props }: any) {
 
     return (
         <div className="relative">
-            <Icon className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+            <Icon className="absolute left-3 sm:left-4 top-3 sm:top-4 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
 
             <textarea
                 {...props}
-                rows={5}
+                rows={4}
                 required
                 onFocus={() => setFocused(true)}
                 onBlur={(e) => setFocused(!!e.target.value)}
                 className="
-  w-full pl-12 pr-16 py-4 text-lg
-  bg-black/70
-  border border-white/10 rounded-xl
-  text-white outline-none
-  transition-all duration-300
-  hover:border-emerald-400/40
-  focus:border-emerald-400
-  focus:shadow-[0_0_0_1px_rgba(52,211,153,0.4),0_0_25px_rgba(52,211,153,0.15)]
-"
-
+          w-full pl-9 sm:pl-12 pr-12 sm:pr-16 
+          py-2.5 sm:py-3 md:py-4 
+          text-sm sm:text-base md:text-lg
+          bg-black/70
+          border border-white/10 
+          rounded-lg sm:rounded-xl
+          text-white outline-none
+          transition-all duration-200
+          hover:border-emerald-400/40
+          focus:border-emerald-400
+          focus:shadow-[0_0_0_1px_rgba(52,211,153,0.4),0_0_15px_rgba(52,211,153,0.15)]
+          sm:focus:shadow-[0_0_0_1px_rgba(52,211,153,0.4),0_0_25px_rgba(52,211,153,0.15)]
+        "
             />
 
             <motion.label
                 animate={{
-                    top: focused ? "6px" : "20px",
-                    fontSize: focused ? "12px" : "16px",
+                    top: focused ? "6px" : "16px",
+                    fontSize: focused ? "10px" : "inherit",
                     color: focused ? "#34d399" : "#9ca3af",
                 }}
                 className="
-          absolute left-12 pointer-events-none
+          absolute left-9 sm:left-12 pointer-events-none
           bg-black px-1
+          text-xs sm:text-sm md:text-base
         "
             >
                 {label}
             </motion.label>
 
             {shortcut && (
-                <span className="absolute right-4 top-4 text-xs text-gray-500">
+                <span className="absolute right-3 sm:right-4 top-3 sm:top-4 text-[10px] sm:text-xs text-gray-500">
                     {shortcut}
                 </span>
             )}

@@ -10,8 +10,8 @@ import VerticalSlider from './VerticalSlider'
 import ThemeToggle from '../shared/ThemeToggle'
 
 const navItems = [
-    { label: 'Work', href: '#work', icon: <Code2 size={18} />, color: 'from-blue-500 to-cyan-400' },
     { label: 'Skills', href: '#skills', icon: <Zap size={18} />, color: 'from-purple-500 to-pink-500' },
+    { label: 'Work', href: '#work', icon: <Code2 size={18} />, color: 'from-blue-500 to-cyan-400' },
     { label: 'Projects', href: '#projects', icon: <Sparkles size={18} />, color: 'from-orange-500 to-yellow-500' },
     { label: 'Contact', href: '#contact', icon: <Globe size={18} />, color: 'from-green-500 to-emerald-400' },
 ]
@@ -33,7 +33,7 @@ export default function MainNav() {
             <motion.nav
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
-                className={`fixed  left-1/2 -translate-x-1/2 z-50 transition-all duration-50 ${scrolled
+                className={`fixed  left-1/2 -translate-x-1/2 z-50 transition-all duration-50 z-999 ${scrolled
                     ? 'shadow-black/20 backdrop-blur-lg rounded-lg'
                     : 'bg-transparent'
                     }`}
@@ -44,7 +44,7 @@ export default function MainNav() {
                         <div className="relative group">
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
-                                className="flex items-center gap-4 cursor-pointer pr-10 mt-12"
+                                className="flex items-center gap-4 cursor-pointer pr-10 mt-[24px] lg:mt-14"
                             >
                                 <div className="relative">
                                     {/* Glow */}

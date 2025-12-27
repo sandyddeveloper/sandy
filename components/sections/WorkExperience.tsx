@@ -56,7 +56,7 @@ const experiences = [
 
 export default function WorkExperienceTimeline() {
     return (
-        <section className="relative mt-28">
+        <section id="work" className="relative mt-28">
 
             {/* HEADER */}
             <div className="flex items-center gap-3 mb-20 justify-center">
