@@ -24,7 +24,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="relative bg-gradient-to-b from-black via-[#041b13] to-black border-t border-emerald-500/20">
+      <footer className="relative bg-gradient-to-b from-black via-[#041b13] to-black border-t border-emerald-500/20 -z-10">
 
         {/* TOP GLOW */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
