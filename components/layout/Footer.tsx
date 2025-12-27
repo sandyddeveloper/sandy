@@ -24,7 +24,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="relative bg-gradient-to-b from-black via-[#041b13] to-black border-t border-emerald-500/20 -z-10">
+      <footer className="relative bg-gradient-to-b from-black via-[#041b13] to-black border-t border-emerald-500/20 ">
 
         {/* TOP GLOW */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
@@ -61,7 +61,7 @@ export default function Footer() {
                   text-emerald-300
                   border border-emerald-500/20
                   hover:bg-emerald-500/20
-                  transition
+                  transition 
                 "
               >
                 <User className="w-4 h-4" />
