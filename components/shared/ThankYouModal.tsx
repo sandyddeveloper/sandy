@@ -39,7 +39,7 @@ export default function ThankYouModal({
 
             <button
               onClick={onClose}
-              className="mt-6 px-6 py-2 bg-emerald-500 text-black rounded-lg font-medium hover:bg-emerald-400 transition"
+              className="mt-6 px-6 py-2 !bg-emerald-500 text-black rounded-lg font-medium hover:!bg-emerald-400 transition"
             >
               Close
             </button>
