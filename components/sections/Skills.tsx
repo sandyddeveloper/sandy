@@ -5,12 +5,15 @@ import TechGrid from "../techskill/TechGrid"
 
 export default function TechStackPage() {
     return (
-        <div id="skills">
+        <section
+            id="skills"
+            className="min-h-screen relative"
+        >
             <TechGrid
                 techStackData={techStackData}
                 educationData={educationData}
             />
-        </div>
+        </section>
 
     )
 

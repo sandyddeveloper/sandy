@@ -1,5 +1,83 @@
 @import "tailwindcss";
 
+
+/* Add these rules to your globals.css */
+
+/* Prevent layout shifts and ensure smooth resizing */
+html {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+body {
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+
+  /* Remove tap highlight */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  /* Disable smooth scrolling during resize */
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Optimize navigation during resize */
+  nav,
+  header {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+    will-change: transform, opacity;
+  }
+
+  /* Force GPU acceleration for smooth resize */
+  .gpu-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Disable animations during resize to prevent lag */
+  .resize-active * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Performance optimizations */
+img,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Remove default button styles that cause repaints */
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Optimize transitions */
+* {
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* REMOVE the @apply border-border line - it's causing the error */
 /* Base styles */
 @layer base {

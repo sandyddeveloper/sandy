@@ -20,7 +20,7 @@ import { BiRefresh } from "react-icons/bi"
 
 /* ================= ANIMATION VARIANTS ================= */
 
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -39,16 +39,6 @@ const itemVariants: Variants = {
         transition: {
             duration: 0.4,
             ease: "easeOut"
-        }
-    }
-}
-
-const inputFocusVariants: Variants = {
-    initial: { scale: 1 },
-    focus: {
-        scale: 1.005,
-        transition: {
-            duration: 0.2
         }
     }
 }
@@ -151,7 +141,13 @@ const track = (event: string, metadata?: any) => {
 
 /* ================= CAPTCHA UTILS ================= */
 
+// FIXED: Moved random generation to client-side only
 const createCaptcha = () => {
+    // This will only run on client
+    if (typeof window === 'undefined') {
+        return { a: 5, b: 3, op: '+', answer: 8 } // Default static value for SSR
+    }
+    
     const operations = ['+', '-', '×']
     const op = operations[Math.floor(Math.random() * operations.length)]
     let a = Math.floor(Math.random() * 9) + 1
@@ -178,6 +174,7 @@ const createCaptcha = () => {
 /* ================= COMPONENT ================= */
 
 export default function ContactSection() {
+    const [hasMounted, setHasMounted] = useState(false) // ✅ Add this
     const [loading, setLoading] = useState(false)
     const [showModal, setShowModal] = useState(false)
 
@@ -210,8 +207,15 @@ export default function ContactSection() {
     /* Form refs */
     const formRef = useRef<HTMLFormElement>(null)
 
-    /* Initialize */
+    // ✅ Add this useEffect for client-only rendering
     useEffect(() => {
+        setHasMounted(true)
+    }, [])
+
+    /* Initialize - CLIENT SIDE ONLY */
+    useEffect(() => {
+        if (!hasMounted) return // ✅ Only run on client
+        
         setCaptcha(createCaptcha())
         setIsCaptchaReady(true)
         
@@ -226,10 +230,11 @@ export default function ContactSection() {
                 console.error("Failed to load saved form data:", e)
             }
         }
-    }, [])
+    }, [hasMounted])
 
     /* Save form data */
     const updateFormData = (field: string, value: string) => {
+        if (!hasMounted) return // ✅ Guard client-only operations
         const newData = { ...formData, [field]: value }
         setFormData(newData)
         sessionStorage.setItem('contact_form_data', JSON.stringify(newData))
@@ -237,6 +242,8 @@ export default function ContactSection() {
 
     /* Keyboard shortcuts */
     useEffect(() => {
+        if (!hasMounted) return // ✅ Only run on client
+        
         const handler = (e: KeyboardEvent) => {
             if (e.altKey) {
                 const map: Record<string, string> = {
@@ -271,10 +278,12 @@ export default function ContactSection() {
         }
         window.addEventListener("keydown", handler)
         return () => window.removeEventListener("keydown", handler)
-    }, [])
+    }, [hasMounted])
 
     /* Reset form completely */
     const resetForm = () => {
+        if (!hasMounted) return // ✅ Guard client-only operations
+        
         setFormData({
             firstName: "",
             lastName: "",
@@ -303,6 +312,8 @@ export default function ContactSection() {
 
     /* Refresh captcha */
     const refreshCaptcha = () => {
+        if (!hasMounted) return // ✅ Guard client-only operations
+        
         setCaptcha(createCaptcha())
         setCaptchaInput("")
         setCaptchaError(null)
@@ -331,6 +342,7 @@ export default function ContactSection() {
     /* Submit */
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        if (!hasMounted) return // ✅ Guard client-only operations
 
         const loadingToast = toast.loading("Validating your information...", {
             duration: Infinity,
@@ -345,8 +357,7 @@ export default function ContactSection() {
         /* Honeypot */
         if (formDataObj.get("company")) {
             toast.dismiss(loadingToast)
-            toast.error("Submission blocked by security filter", {
-            })
+            toast.error("Submission blocked by security filter")
             setLoading(false)
             track("honeypot_triggered")
             return
@@ -496,6 +507,34 @@ export default function ContactSection() {
         }
     }
 
+    // ✅ Don't render the form until mounted
+    if (!hasMounted) {
+        return (
+            <section id="contact" className="relative mt-28 bg-black border-t border-emerald-500/15">
+                <div className="mx-auto max-w-[900px] px-4 py-20">
+                    {/* Skeleton loader */}
+                    <div className="text-center mb-12">
+                        <div className="h-12 bg-gray-800/20 rounded-lg w-48 mx-auto mb-4 animate-pulse" />
+                        <div className="h-4 bg-gray-700/20 rounded w-32 mx-auto mb-12 animate-pulse" />
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6">
+                        {/* Name row skeleton */}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="h-16 bg-gray-800/20 rounded-xl animate-pulse" />
+                            <div className="h-16 bg-gray-800/20 rounded-xl animate-pulse" />
+                        </div>
+                        {/* Other fields skeleton */}
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="h-16 bg-gray-800/20 rounded-xl animate-pulse" />
+                        ))}
+                        {/* Submit button skeleton */}
+                        <div className="h-14 bg-emerald-500/20 rounded-xl animate-pulse" />
+                    </div>
+                </div>
+            </section>
+        )
+    }
+
     return (
         <section id="contact" className="relative mt-28 bg-black border-t border-emerald-500/15">
             <Toaster
@@ -546,9 +585,10 @@ export default function ContactSection() {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
+                    suppressHydrationWarning // ✅ Add this to suppress hydration warnings
                     className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6"
                 >
-                    <input type="text" name="company" className="hidden" />
+                    <input type="text" name="company" className="hidden" suppressHydrationWarning />
 
                     {/* Name Row */}
                     <div className="grid sm:grid-cols-2 gap-4">
@@ -563,6 +603,7 @@ export default function ContactSection() {
                                     onBlur={() => setFocusedField(null)}
                                     onChange={(e) => updateFormData('firstName', e.target.value)}
                                     className="w-full pl-12 pr-4 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+                                    suppressHydrationWarning // ✅ Add this
                                 />
                                 <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.firstName || focusedField === "firstName" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
                                     First Name
@@ -581,6 +622,7 @@ export default function ContactSection() {
                                     onBlur={() => setFocusedField(null)}
                                     onChange={(e) => updateFormData('lastName', e.target.value)}
                                     className="w-full pl-12 pr-4 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+                                    suppressHydrationWarning // ✅ Add this
                                 />
                                 <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.lastName || focusedField === "lastName" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
                                     Last Name
@@ -612,6 +654,7 @@ export default function ContactSection() {
                                     }
                                 }}
                                 className={`w-full pl-12 pr-4 py-4 bg-black border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${emailError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-emerald-400'}`}
+                                suppressHydrationWarning // ✅ Add this
                             />
                             <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.email || focusedField === "email" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
                                 Email
@@ -647,6 +690,7 @@ export default function ContactSection() {
                                     }
                                 }}
                                 className={`w-full pl-12 pr-4 py-4 bg-black border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-emerald-400'}`}
+                                suppressHydrationWarning // ✅ Add this
                             />
                             <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.phone || focusedField === "phone" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
                                 Phone Number
@@ -670,6 +714,7 @@ export default function ContactSection() {
                                 onBlur={() => setFocusedField(null)}
                                 onChange={(e) => updateFormData('subject', e.target.value)}
                                 className="w-full pl-12 pr-10 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 appearance-none"
+                                suppressHydrationWarning // ✅ Add this
                             >
                                 <option value="Job Opportunity">Job Opportunity</option>
                                 <option value="Project Collaboration">Project Collaboration</option>
@@ -697,6 +742,7 @@ export default function ContactSection() {
                                 onBlur={() => setFocusedField(null)}
                                 onChange={(e) => updateFormData('message', e.target.value)}
                                 className="w-full pl-12 pr-4 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 resize-none"
+                                suppressHydrationWarning // ✅ Add this
                             />
                             <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.message || focusedField === "message" ? 'top-2 text-xs text-emerald-400' : 'top-4 text-gray-400'}`}>
                                 Message
@@ -745,6 +791,7 @@ export default function ContactSection() {
                                         setCaptchaError(null)
                                     }}
                                     className={`w-full pl-12 pr-4 py-4 bg-black border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${captchaError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-emerald-400'}`}
+                                    suppressHydrationWarning // ✅ Add this
                                 />
                                 <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${captchaInput || focusedField === "captcha" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
                                     CAPTCHA Answer
@@ -775,22 +822,24 @@ export default function ContactSection() {
                     </motion.div>
 
                     {/* Invisible reCAPTCHA */}
-                    <div className="flex justify-center">
-                        <ReCAPTCHA
-                            ref={recaptchaRef}
-                            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-                            theme="dark"
-                            size={showRecaptcha ? "normal" : "invisible"}
-                            onChange={handleRecaptchaChange}
-                            onErrored={() => {
-                                toast.error("reCAPTCHA verification failed. Please try again.")
-                            }}
-                            onExpired={() => {
-                                setRecaptchaToken(null)
-                                toast.error("reCAPTCHA verification expired. Please verify again.")
-                            }}
-                        />
-                    </div>
+                    {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+                        <div className="flex justify-center">
+                            <ReCAPTCHA
+                                ref={recaptchaRef}
+                                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                                theme="dark"
+                                size={showRecaptcha ? "normal" : "invisible"}
+                                onChange={handleRecaptchaChange}
+                                onErrored={() => {
+                                    toast.error("reCAPTCHA verification failed. Please try again.")
+                                }}
+                                onExpired={() => {
+                                    setRecaptchaToken(null)
+                                    toast.error("reCAPTCHA verification expired. Please verify again.")
+                                }}
+                            />
+                        </div>
+                    )}
 
                     {/* Submit Button */}
                     <motion.div variants={itemVariants}>
@@ -798,6 +847,7 @@ export default function ContactSection() {
                             type="submit"
                             disabled={loading || !isCaptchaReady}
                             className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-black py-4 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                            suppressHydrationWarning // ✅ Add this
                         >
                             <FaPaperPlane className="w-4 h-4" />
                             {loading ? "Sending..." : "Send Message"}

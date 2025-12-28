@@ -1,8 +1,7 @@
-// components/sections/Hero.tsx
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { useEffect, useState, useRef } from 'react'
+import { motion, useScroll, useTransform, useReducedMotion, Variants } from 'framer-motion'
+import { useEffect, useState, useRef, useCallback, useMemo, startTransition } from 'react'
 import {
     ArrowDown,
     Sparkles,
@@ -14,12 +13,54 @@ import {
 import ParticleBackground from '../hero/ParticleBackground'
 import { useTheme } from 'next-themes'
 
+const ROLES = [
+    'Django Backend Developer',
+    'React Frontend Engineer',
+    'Python Application Developer',
+    'Full-Stack Web Developer',
+    'Scalable System Builder',
+]
+
+// Animation variants with proper typing
+const orbRingVariants = (index: number): Variants => ({
+  animate: {
+    rotate: 360,
+    transition: {
+      duration: 25 + index * 5,
+      repeat: Infinity,
+      ease: "linear" as const,
+    }
+  }
+})
+
+const glowVariants: Variants = {
+  animate: {
+    boxShadow: [
+      '0 0 70px rgba(16,185,129,0.4)',
+      '0 0 100px rgba(34,197,94,0.5)',
+      '0 0 70px rgba(16,185,129,0.4)',
+    ],
+    transition: {
+      duration: 4,
+      repeat: Infinity,
+    }
+  }
+}
+
+// Move stats array outside component or memoize at top level
+const STATS_DATA = [
+    { value: '1+', label: 'Years Experience' },
+    { value: '100%', label: 'Backend Focus' },
+]
+
 export default function HeroSection() {
     const { resolvedTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
     const [typedText, setTypedText] = useState('')
     const [textIndex, setTextIndex] = useState(0)
+    const shouldReduceMotion = useReducedMotion()
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+    const animationFrameRef = useRef<number | null>(null)
 
     const containerRef = useRef<HTMLDivElement>(null)
     const { scrollYProgress } = useScroll()
@@ -28,66 +69,87 @@ export default function HeroSection() {
     const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
     const y = useTransform(scrollYProgress, [0, 0.5], [0, 60])
 
-    const [scrollIndicatorStyle, setScrollIndicatorStyle] = useState({ x: 0, y: 0 })
-
-    const roles = [
-        'Django Backend Developer',
-        'React Frontend Engineer',
-        'Python Application Developer',
-        'Full-Stack Web Developer',
-        'Scalable System Builder',
-    ]
-
-    useEffect(() => setMounted(true), [])
+    // Memoize stats at top level (before any conditionals)
+    const stats = useMemo(() => STATS_DATA, [])
 
     useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY })
+        setMounted(true)
+        return () => {
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current)
+                typingTimeoutRef.current = null
+            }
+            if (animationFrameRef.current) {
+                cancelAnimationFrame(animationFrameRef.current)
+                animationFrameRef.current = null
+            }
         }
-        window.addEventListener('mousemove', handleMouseMove)
-        return () => window.removeEventListener('mousemove', handleMouseMove)
     }, [])
 
+    // Optimized typing effect
     useEffect(() => {
-        setScrollIndicatorStyle({
-            x: mousePosition.x * 0.05 - 4,
-            y: mousePosition.y * 0.05 - 4,
-        })
-    }, [mousePosition])
+        if (!mounted || shouldReduceMotion) {
+            setTypedText(ROLES[textIndex])
+            return
+        }
 
-    useEffect(() => {
-        const currentRole = roles[textIndex]
+        const currentRole = ROLES[textIndex]
         let charIndex = 0
+        let isCancelled = false
 
         const type = () => {
+            if (isCancelled) return
+            
             if (charIndex <= currentRole.length) {
                 setTypedText(currentRole.substring(0, charIndex))
                 charIndex++
-                setTimeout(type, 70)
+                typingTimeoutRef.current = setTimeout(type, 70)
             } else {
-                setTimeout(() => {
+                typingTimeoutRef.current = setTimeout(() => {
+                    if (isCancelled) return
+                    
                     let removeIndex = currentRole.length
                     const remove = () => {
+                        if (isCancelled) return
+                        
                         if (removeIndex >= 0) {
                             setTypedText(currentRole.substring(0, removeIndex))
                             removeIndex--
-                            setTimeout(remove, 40)
+                            typingTimeoutRef.current = setTimeout(remove, 40)
                         } else {
-                            setTextIndex((textIndex + 1) % roles.length)
+                            startTransition(() => {
+                                setTextIndex((prev) => (prev + 1) % ROLES.length)
+                            })
                         }
                     }
                     remove()
                 }, 1200)
             }
         }
+        
         type()
-    }, [textIndex])
+        
+        return () => {
+            isCancelled = true
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current)
+                typingTimeoutRef.current = null
+            }
+        }
+    }, [textIndex, mounted, shouldReduceMotion])
 
-    const handleScrollDown = () => {
-        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
-    }
+    const handleScrollDown = useCallback(() => {
+        const nextSection = document.getElementById('skills')
+        if (nextSection) {
+            nextSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            })
+        }
+    }, [])
 
     if (!mounted) return null
+
     const isDark = resolvedTheme === 'dark'
 
     return (
@@ -121,7 +183,7 @@ export default function HeroSection() {
                 </div>
             </div>
 
-            {/* BACKGROUND */}
+            {/* BACKGROUND - Optimized gradients */}
             <div className="absolute inset-0">
                 <div
                     className="absolute inset-0 opacity-10 dark:opacity-5"
@@ -149,17 +211,14 @@ export default function HeroSection() {
                 {/* LEFT */}
                 <div className="w-full lg:w-2/5 flex flex-col items-center lg:items-start relative">
 
-                    {/* SIDE TEXT */}
-                    <motion.div
-                        className="
+                    {/* SIDE TEXT - Only show on larger screens */}
+                    <div className="
               absolute -top-6 lg:top-0 lg:-left-24
               transform -rotate-90 origin-left
               hidden lg:block 
             "
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
                     >
-                        <div className="flex items-center gap-2 ">
+                        <div className="flex items-center gap-2">
                             <span className="text-xs tracking-widest font-bold text-emerald-600">
                                 SANTHOSHRAJ K
                             </span>
@@ -168,16 +227,16 @@ export default function HeroSection() {
                                 ACTIVE
                             </span>
                         </div>
-                    </motion.div>
+                    </div>
 
-                    {/* ORB with Name */}
+                    {/* ORB with Name - Optimized animations */}
                     <div className="relative mb-12 flex justify-center w-full">
                         {[0, 1, 2].map(ring => (
                             <motion.div
                                 key={ring}
                                 className="absolute border-2 border-dashed rounded-full max-sm:scale-75"
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 25 + ring * 5, repeat: Infinity, ease: 'linear' }}
+                                variants={orbRingVariants(ring)}
+                                animate={shouldReduceMotion ? {} : "animate"}
                                 style={{
                                     width: `${160 + ring * 70}px`,
                                     height: `${160 + ring * 70}px`,
@@ -188,29 +247,28 @@ export default function HeroSection() {
 
                         <motion.div
                             className="relative w-44 h-44 sm:w-48 sm:h-48 rounded-full overflow-hidden"
-                            animate={{
-                                boxShadow: [
-                                    '0 0 70px rgba(16,185,129,0.4)',
-                                    '0 0 100px rgba(34,197,94,0.5)',
-                                    '0 0 70px rgba(16,185,129,0.4)',
-                                ],
-                            }}
-                            transition={{ duration: 4, repeat: Infinity }}
+                            variants={glowVariants}
+                            animate={shouldReduceMotion ? {} : "animate"}
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500" />
                             <div className="absolute inset-6 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center">
-                                <Code2 size={60} className="text-emerald-600 mb-2" />
+                                <Code2 
+                                    size={60} 
+                                    className="text-emerald-600 mb-2" 
+                                    aria-hidden="true"
+                                />
                             </div>
                         </motion.div>
                     </div>
 
-                    {/* STATS */}
+                    {/* STATS - Use the memoized stats */}
                     <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
-                        {[
-                            { value: '1+', label: 'Years Experience' },
-                            { value: '100%', label: 'Backend Focus' },
-                        ].map(stat => (
-                            <div key={stat.label} className="glass-effect p-4 rounded-xl text-center">
+                        {stats.map(stat => (
+                            <div 
+                                key={stat.label} 
+                                className="glass-effect p-4 rounded-xl text-center"
+                                role="listitem"
+                            >
                                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
                                     {stat.value}
                                 </div>
@@ -237,7 +295,10 @@ export default function HeroSection() {
                         </div>
 
                         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none">
-                            <span className="block bg-gradient-to-r from-emerald-600 via-green-600 to-lime-600 bg-clip-text text-transparent">
+                            <span 
+                                className="block bg-gradient-to-r from-emerald-600 via-green-600 to-lime-600 bg-clip-text text-transparent"
+                                aria-label="Build scalable systems"
+                            >
                                 BUILD
                             </span>
                             <span className="block text-gray-800 dark:text-gray-200">
@@ -245,7 +306,11 @@ export default function HeroSection() {
                             </span>
                             <span className="flex items-center gap-4 text-gray-800 dark:text-gray-200">
                                 SYSTEMS
-                                <MousePointer2 className="text-emerald-500" size={42} />
+                                <MousePointer2 
+                                    className="text-emerald-500" 
+                                    size={42} 
+                                    aria-hidden="true"
+                                />
                             </span>
                         </h1>
 
@@ -260,15 +325,23 @@ export default function HeroSection() {
                     </div>
 
                     {/* ROLE */}
-                    <div className="glass-effect p-4 rounded-2xl inline-flex items-center gap-4">
-                        <Terminal className="text-emerald-500" size={28} />
+                    <div 
+                        className="glass-effect p-4 rounded-2xl inline-flex items-center gap-4"
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
+                    >
+                        <Terminal className="text-emerald-500" size={28} aria-hidden="true" />
                         <div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
                                 CURRENT ROLE
                             </div>
                             <div className="font-mono text-xl text-gray-800 dark:text-gray-200">
                                 {typedText}
-                                <span className="ml-1 inline-block w-[2px] h-6 bg-emerald-500 animate-pulse" />
+                                <span 
+                                    className="ml-1 inline-block w-[2px] h-6 bg-emerald-500 animate-pulse"
+                                    aria-hidden="true"
+                                />
                             </div>
                         </div>
                     </div>
@@ -282,18 +355,17 @@ export default function HeroSection() {
                 </div>
             </div>
 
-
-
             {/* SCROLL */}
-            <motion.div
-                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 scale-90 sm:scale-100"
-                animate={scrollIndicatorStyle}
-            >
-                <button onClick={handleScrollDown} className="flex flex-col items-center gap-2">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 scale-90 sm:scale-100">
+                <button 
+                    onClick={handleScrollDown} 
+                    className="flex flex-col items-center gap-2"
+                    aria-label="Scroll to next section"
+                >
                     <span className="text-xs tracking-widest text-gray-500">SCROLL</span>
-                    <ArrowDown className="text-gray-500 animate-bounce" />
+                    <ArrowDown className="text-gray-500 animate-bounce" aria-hidden="true" />
                 </button>
-            </motion.div>
+            </div>
         </section>
     )
 }
