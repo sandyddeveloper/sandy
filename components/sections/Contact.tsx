@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import toast, { Toaster } from "react-hot-toast"
 import ReCAPTCHA from "react-google-recaptcha"
 import { motion, Variants } from "framer-motion"
-import { 
-    FaUser, 
-    FaPhoneAlt, 
+import {
+    FaUser,
+    FaPhoneAlt,
     FaPaperPlane,
     FaChevronDown,
     FaShieldAlt
@@ -147,7 +147,7 @@ const createCaptcha = () => {
     if (typeof window === 'undefined') {
         return { a: 5, b: 3, op: '+', answer: 8 } // Default static value for SSR
     }
-    
+
     const operations = ['+', '-', '×']
     const op = operations[Math.floor(Math.random() * operations.length)]
     let a = Math.floor(Math.random() * 9) + 1
@@ -215,10 +215,10 @@ export default function ContactSection() {
     /* Initialize - CLIENT SIDE ONLY */
     useEffect(() => {
         if (!hasMounted) return // ✅ Only run on client
-        
+
         setCaptcha(createCaptcha())
         setIsCaptchaReady(true)
-        
+
         track("view")
 
         const saved = sessionStorage.getItem('contact_form_data')
@@ -243,7 +243,7 @@ export default function ContactSection() {
     /* Keyboard shortcuts */
     useEffect(() => {
         if (!hasMounted) return // ✅ Only run on client
-        
+
         const handler = (e: KeyboardEvent) => {
             if (e.altKey) {
                 const map: Record<string, string> = {
@@ -270,8 +270,8 @@ export default function ContactSection() {
                 const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"]')
                 if (submitBtn) {
                     submitBtn.click()
-                    toast("Submitting form...", { 
-                        duration: 1500 
+                    toast("Submitting form...", {
+                        duration: 1500
                     })
                 }
             }
@@ -283,7 +283,7 @@ export default function ContactSection() {
     /* Reset form completely */
     const resetForm = () => {
         if (!hasMounted) return // ✅ Guard client-only operations
-        
+
         setFormData({
             firstName: "",
             lastName: "",
@@ -292,7 +292,7 @@ export default function ContactSection() {
             subject: "Job Opportunity",
             message: "",
         })
-        
+
         setFocusedField(null)
         setEmailError(null)
         setPhoneError(null)
@@ -304,7 +304,7 @@ export default function ContactSection() {
         setRecaptchaToken(null)
         recaptchaRef.current?.reset()
         sessionStorage.removeItem('contact_form_data')
-        
+
         if (formRef.current) {
             formRef.current.reset()
         }
@@ -313,7 +313,7 @@ export default function ContactSection() {
     /* Refresh captcha */
     const refreshCaptcha = () => {
         if (!hasMounted) return // ✅ Guard client-only operations
-        
+
         setCaptcha(createCaptcha())
         setCaptchaInput("")
         setCaptchaError(null)
@@ -510,7 +510,7 @@ export default function ContactSection() {
     // ✅ Don't render the form until mounted
     if (!hasMounted) {
         return (
-            <section id="contact" className="relative mt-28 bg-black border-t border-emerald-500/15">
+            <section id="contact" className="relative mt-28 bg-black border-t !border-emerald-500/15">
                 <div className="mx-auto max-w-[900px] px-4 py-20">
                     {/* Skeleton loader */}
                     <div className="text-center mb-12">
@@ -528,7 +528,7 @@ export default function ContactSection() {
                             <div key={i} className="h-16 bg-gray-800/20 rounded-xl animate-pulse" />
                         ))}
                         {/* Submit button skeleton */}
-                        <div className="h-14 bg-emerald-500/20 rounded-xl animate-pulse" />
+                        <div className="h-14 !bg-emerald-500/20 rounded-xl animate-pulse" />
                     </div>
                 </div>
             </section>
@@ -536,30 +536,68 @@ export default function ContactSection() {
     }
 
     return (
-        <section id="contact" className="relative mt-28 bg-black border-t border-emerald-500/15">
+        <section id="contact" className="relative mt-28 bg-black border-t !border-emerald-500/15">
             <Toaster
                 position="top-right"
+                gutter={14}
                 toastOptions={{
-                    duration: 4000,
+                    duration: 3800,
                     style: {
-                        background: '#00a205ff',
-                        color: '#fff',
-                        border: '1px solid #0aff3fff',
-                        borderRadius: '12px',
-                        padding: '16px',
+                        background: "rgba(0, 0, 0, 0.65)",
+                        backdropFilter: "blur(12px)",
+                        WebkitBackdropFilter: "blur(12px)",
+                        border: "1px solid rgba(0, 255, 128, 0.25)",
+                        color: "#d4ffd4",
+                        padding: "14px 18px",
+                        borderRadius: "14px",
+                        boxShadow: "0 8px 25px rgba(0,0,0,0.4)",
+                    },
+
+                    success: {
+                        iconTheme: {
+                            primary: "#10B981",
+                            secondary: "#0D0D0D",
+                        },
+                        style: {
+                            border: "1px solid rgba(16, 185, 129, 0.45)",
+                            color: "#C8FFE0",
+                        },
+                    },
+
+                    error: {
+                        iconTheme: {
+                            primary: "#EF4444",
+                            secondary: "#0D0D0D",
+                        },
+                        style: {
+                            border: "1px solid rgba(239, 68, 68, 0.4)",
+                            color: "#FFD2D2",
+                        },
+                    },
+
+                    loading: {
+                        iconTheme: {
+                            primary: "#FDE047",
+                            secondary: "#0D0D0D",
+                        },
+                        style: {
+                            border: "1px solid rgba(253, 224, 71, 0.4)",
+                            color: "#FFF8C8",
+                        },
                     },
                 }}
             />
+
             <ThankYouModal open={showModal} onClose={() => setShowModal(false)} />
 
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="mx-auto max-w-[900px] px-4 py-20"
             >
-                <motion.div 
+                <motion.div
                     className="text-center mb-12"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -567,7 +605,7 @@ export default function ContactSection() {
                     transition={{ delay: 0.1 }}
                 >
                     <h2 className="text-3xl sm:text-4xl font-bold text-white">Contact</h2>
-                    <motion.p 
+                    <motion.p
                         className="text-gray-400 mt-2"
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
@@ -773,7 +811,7 @@ export default function ContactSection() {
                                 </button>
                             )}
                         </div>
-                        
+
                         {isCaptchaReady ? (
                             <div className="relative">
                                 <FaShieldAlt className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -802,7 +840,7 @@ export default function ContactSection() {
                                 <div className="w-24 h-4 bg-white/10 rounded animate-pulse"></div>
                             </div>
                         )}
-                        
+
                         {captchaError && (
                             <p className="mt-1 text-xs text-red-400">
                                 {captchaError}
@@ -846,7 +884,7 @@ export default function ContactSection() {
                         <button
                             type="submit"
                             disabled={loading || !isCaptchaReady}
-                            className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-black py-4 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-2 !bg-emerald-500 hover:!bg-emerald-600 text-black py-4 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                             suppressHydrationWarning // ✅ Add this
                         >
                             <FaPaperPlane className="w-4 h-4" />

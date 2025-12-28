@@ -57,7 +57,7 @@ export default function ViewModal({
 
             <button
               onClick={onClose}
-              className="mt-6 w-full py-3 rounded-lg bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition"
+              className="mt-6 w-full py-3 rounded-lg !bg-emerald-500 text-black font-semibold hover:!bg-emerald-400 transition"
             >
               Close
             </button>

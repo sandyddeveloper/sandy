@@ -57,10 +57,10 @@ export default function Footer() {
                   mt-5 inline-flex items-center gap-2
                   px-4 py-2
                   rounded-xl
-                  bg-emerald-500/10
+                  !bg-emerald-500/10
                   text-emerald-300
                   border border-emerald-500/20
-                  hover:bg-emerald-500/20
+                  hover:!bg-emerald-500/20
                   transition 
                 "
               >

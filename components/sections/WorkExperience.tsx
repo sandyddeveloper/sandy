@@ -104,7 +104,7 @@ export default function WorkExperienceTimeline() {
                                     {exp.current && (
                                         <span className="absolute -top-6 left-1/2 -translate-x-1/2
                       text-[10px] px-2 py-0.5 rounded-full
-                      bg-emerald-500/15 text-emerald-300">
+                      bg-emerald-500/15 text-emerald-300 z-50">
                                             CURRENT
                                         </span>
                                     )}
@@ -168,7 +168,7 @@ export default function WorkExperienceTimeline() {
                                         </p>
 
                                         {/* POINTS */}
-                                        <ul className="mt-5 space-y-2 text-sm text-gray-400">
+                                        <ul className="mt-5 space-y-2 text-sm text-gray-400 z-50">
                                             {exp.points.map(point => (
                                                 <li key={point} className="flex items-start gap-2">
                                                     <span className="mt-2 w-1.5 h-1.5 rounded-full bg-emerald-400" />
