@@ -10,7 +10,6 @@ interface TooltipProps {
   delay?: number
 }
 
-// Predefined positions for better performance
 const POSITIONS = {
   top: '-top-2 left-1/2 -translate-x-1/2 -translate-y-full',
   bottom: '-bottom-2 left-1/2 -translate-x-1/2 translate-y-full',
@@ -24,8 +23,6 @@ const ARROW_CLASSES = {
   left: 'right-0 top-1/2 translate-x-1/2 -translate-y-1/2',
   right: 'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2',
 }
-
-// Animation variants for better performance
 const tooltipVariants = {
   hidden: { opacity: 0, scale: 0.8, y: 10 },
   visible: { opacity: 1, scale: 1, y: 0 },
@@ -51,7 +48,6 @@ const Tooltip = memo(({ text, children, position = 'top', delay = 0.5 }: Tooltip
   const handleMouseEnter = useCallback(() => setIsVisible(true), [])
   const handleMouseLeave = useCallback(() => setIsVisible(false), [])
   
-  // Use event listeners for keyboard navigation
   const handleFocus = useCallback(() => setIsVisible(true), [])
   const handleBlur = useCallback(() => setIsVisible(false), [])
 
@@ -90,7 +86,6 @@ const Tooltip = memo(({ text, children, position = 'top', delay = 0.5 }: Tooltip
                 <div className="w-2 h-2 bg-gray-900 border-l border-t border-white/10 rotate-45" />
               </div>
               
-              {/* Replace glow with static version - same appearance, less GPU load */}
               <div className="absolute inset-0 rounded-lg -z-10 opacity-30" 
                 style={{
                   background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',
@@ -99,7 +94,6 @@ const Tooltip = memo(({ text, children, position = 'top', delay = 0.5 }: Tooltip
               />
             </div>
             
-            {/* Reduce particle count and optimize */}
             {[...Array(2)].map((_, i) => (
               <motion.div
                 key={i}

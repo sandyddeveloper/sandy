@@ -6,7 +6,6 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react"
 
 const SECTIONS = ["Hero", "Skills", "Work", "Projects", "Contact"]
 
-// Optimized animation variants
 const activeLabelVariants = {
   hidden: { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0 }
@@ -23,21 +22,39 @@ export default function VerticalSlider() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [hasMounted, setHasMounted] = useState(false)
+  const [isDark, setIsDark] = useState(false)
   const observerRef = useRef<IntersectionObserver | null>(null)
   
   const HEIGHT = 160
   const ITEM_HEIGHT = HEIGHT / SECTIONS.length
   const y = useMotionValue(0)
   
-  // Memoize calculations
   const sectionsArray = useMemo(() => SECTIONS, [])
 
-  // Only render on client
   useEffect(() => {
     setHasMounted(true)
+    
+    // Check initial theme
+    const checkTheme = () => {
+      const isDarkMode = document.documentElement.classList.contains('dark')
+      setIsDark(isDarkMode)
+    }
+    
+    checkTheme()
+    
+    // Listen for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          checkTheme()
+        }
+      })
+    })
+    
+    observer.observe(document.documentElement, { attributes: true })
+    return () => observer.disconnect()
   }, [])
 
-  /* ================= OPTIMIZED SCROLL TO SECTION ================= */
   const scrollToSection = useCallback((index: number) => {
     if (!hasMounted) return
     
@@ -59,7 +76,6 @@ export default function VerticalSlider() {
     }
   }, [sectionsArray, ITEM_HEIGHT, y, hasMounted])
 
-  /* ================= OPTIMIZED DRAG HANDLERS ================= */
   const handleDragStart = useCallback(() => {
     setIsDragging(true)
   }, [])
@@ -71,7 +87,6 @@ export default function VerticalSlider() {
     scrollToSection(index)
   }, [y, ITEM_HEIGHT, scrollToSection])
 
-  /* ================= FIXED INTERSECTION OBSERVER ================= */
   useEffect(() => {
     if (!hasMounted) return
     
@@ -81,7 +96,6 @@ export default function VerticalSlider() {
       (entries: IntersectionObserverEntry[]) => {
         if (isDragging) return
         
-        // FIXED: Properly typed reduce with initial value
         const mostVisible = entries.reduce<IntersectionObserverEntry | null>(
           (max, entry) => {
             if (!max) return entry
@@ -111,7 +125,6 @@ export default function VerticalSlider() {
       }
     )
 
-    // Observe all sections
     sectionsArray.forEach(section => {
       const el = document.getElementById(section.toLowerCase())
       if (el) observerRef.current?.observe(el)
@@ -123,19 +136,78 @@ export default function VerticalSlider() {
     }
   }, [sectionsArray, activeIndex, isDragging, y, hasMounted])
 
-  // Don't render until mounted
+  // Theme-based styles
+  const getSliderBackground = () => {
+    return isDark
+      ? 'bg-gray-900/50 backdrop-blur-sm border border-emerald-500/20'
+      : 'bg-white/80 backdrop-blur-sm border border-emerald-500/30'
+  }
+
+  const getGlowBackground = () => {
+    return isDark
+      ? 'bg-emerald-500/5 blur-sm'
+      : 'bg-emerald-500/10 blur-sm'
+  }
+
+  const getDotColor = (isActive: boolean, isHover: boolean = false) => {
+    if (isActive) {
+      return isDark
+        ? 'bg-emerald-400 scale-125 shadow shadow-emerald-400/60'
+        : 'bg-emerald-500 scale-125 shadow shadow-emerald-500/60'
+    }
+    
+    if (isHover) {
+      return isDark
+        ? 'bg-emerald-400/50'
+        : 'bg-emerald-500/50'
+    }
+    
+    return isDark
+      ? 'bg-emerald-300/30'
+      : 'bg-emerald-500/30'
+  }
+
+  const getTooltipBackground = () => {
+    return isDark
+      ? 'bg-emerald-900/90 text-emerald-100'
+      : 'bg-emerald-100/90 text-emerald-900'
+  }
+
+  const getLabelColor = () => {
+    return isDark
+      ? 'text-emerald-300'
+      : 'text-emerald-600'
+  }
+
+  const getSubLabelColor = () => {
+    return isDark
+      ? 'text-emerald-300/60'
+      : 'text-emerald-600/60'
+  }
+
+  const getChevronColor = () => {
+    return isDark
+      ? 'text-emerald-400/70'
+      : 'text-emerald-500/70'
+  }
+
+  const getHandleGradient = () => {
+    return isDark
+      ? 'bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500 shadow-lg shadow-emerald-500/40'
+      : 'bg-gradient-to-br from-emerald-400 via-green-500 to-lime-400 shadow-lg shadow-emerald-500/30'
+  }
+
   if (!hasMounted) {
     return (
       <div className="fixed top-1/2 right-8 -translate-y-1/2 z-50 hidden md:block">
         <div className="relative select-none">
           <div className="relative h-40 w-10 mx-auto">
-            {/* Skeleton loader */}
-            <div className="absolute inset-0 rounded-full bg-emerald-500/10 blur-sm" />
-            <div className="absolute inset-0 rounded-full bg-white/5 backdrop-blur-sm border border-emerald-500/20" />
+            <div className={`absolute inset-0 rounded-full ${getGlowBackground()}`} />
+            <div className={`absolute inset-0 rounded-full ${getSliderBackground()}`} />
             <div className="absolute inset-0 flex flex-col justify-between py-2">
               {sectionsArray.map((_, index) => (
                 <div key={index} style={{ height: ITEM_HEIGHT }} className="flex items-center justify-center">
-                  <div className="w-2 h-2 bg-emerald-300/30 rounded-full animate-pulse" />
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${getDotColor(false)}`} />
                 </div>
               ))}
             </div>
@@ -152,13 +224,10 @@ export default function VerticalSlider() {
       role="navigation" 
       aria-label="Page navigation slider"
     >
-      {/* SLIDER */}
       <div className="relative h-40 w-10 mx-auto">
-        {/* TRACK - Optimized with static gradients */}
-        <div className="absolute inset-0 rounded-full bg-emerald-500/10 blur-sm" />
-        <div className="absolute inset-0 rounded-full bg-white/5 backdrop-blur-sm border border-emerald-500/20" />
+        <div className={`absolute inset-0 rounded-full ${getGlowBackground()}`} />
+        <div className={`absolute inset-0 rounded-full ${getSliderBackground()}`} />
 
-        {/* DRAG HANDLE */}
         <motion.div
           drag="y"
           dragConstraints={{ top: 0, bottom: HEIGHT - ITEM_HEIGHT }}
@@ -198,30 +267,28 @@ export default function VerticalSlider() {
         >
           <div className="relative">
             <div className="absolute -top-6 left-1/2 -translate-x-1/2" aria-hidden="true">
-              <ChevronUp size={16} className="text-emerald-400/70" />
+              <ChevronUp size={16} className={getChevronColor()} />
             </div>
 
             <motion.div
               variants={handleVariants}
               animate="pulse"
-              className="
+              className={`
                 w-8 h-8 mx-auto
-                bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500
                 rounded-full flex items-center justify-center
-                shadow-lg shadow-emerald-500/40
-              "
+                ${getHandleGradient()}
+              `}
               aria-hidden="true"
             >
               <div className="w-2 h-2 bg-white rounded-full" />
             </motion.div>
 
             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2" aria-hidden="true">
-              <ChevronDown size={16} className="text-emerald-400/70" />
+              <ChevronDown size={16} className={getChevronColor()} />
             </div>
           </div>
         </motion.div>
 
-        {/* INDICATORS */}
         <div 
           suppressHydrationWarning
           className="absolute inset-0 flex flex-col justify-between py-2"
@@ -238,11 +305,7 @@ export default function VerticalSlider() {
             >
               <div
                 suppressHydrationWarning
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === activeIndex
-                    ? "bg-emerald-400 scale-125 shadow shadow-emerald-400/60"
-                    : "bg-emerald-300/30 group-hover:bg-emerald-400/50"
-                }`}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${getDotColor(index === activeIndex)}`}
                 aria-hidden="true"
               />
 
@@ -251,7 +314,7 @@ export default function VerticalSlider() {
                 className="absolute left-full ml-3 opacity-0 group-hover:opacity-100 transition-opacity"
                 role="tooltip"
               >
-                <span className="text-xs font-medium whitespace-nowrap bg-emerald-900/90 text-emerald-100 px-2 py-1 rounded">
+                <span className={`text-xs font-medium whitespace-nowrap px-2 py-1 rounded ${getTooltipBackground()}`}>
                   {section}
                 </span>
               </div>
@@ -260,21 +323,20 @@ export default function VerticalSlider() {
         </div>
       </div>
 
-      {/* ACTIVE LABEL */}
       <div className="mt-4 text-center">
         <motion.div
           key={activeIndex}
           variants={activeLabelVariants}
           initial="hidden"
           animate="visible"
-          className="text-xs font-semibold text-emerald-300 tracking-wider"
+          className={`text-xs font-semibold tracking-wider ${getLabelColor()}`}
           aria-live="polite"
           aria-atomic="true"
         >
           {sectionsArray[activeIndex].toUpperCase()}
         </motion.div>
 
-        <div className="text-[10px] text-emerald-300/60 mt-1">
+        <div className={`text-[10px] mt-1 ${getSubLabelColor()}`}>
           {activeIndex + 1} / {sectionsArray.length}
         </div>
       </div>

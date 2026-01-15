@@ -58,7 +58,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   themeColor: "#041b13",
-  userScalable: false, // This prevents zooming which can interfere with resize
+  userScalable: false,
   viewportFit: "cover",
 }
 
@@ -70,7 +70,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="!overflow-x-hidden" suppressHydrationWarning>
       <head>
-        {/* Critical CSS for instant mobile resize */}
         <style dangerouslySetInnerHTML={{
           __html: `
             /* Prevent layout shift on mobile */

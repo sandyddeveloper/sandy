@@ -18,7 +18,6 @@ import { sendMail } from "@/app/actions/sendMail"
 import ThankYouModal from "../shared/ThankYouModal"
 import { BiRefresh } from "react-icons/bi"
 
-/* ================= ANIMATION VARIANTS ================= */
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -39,32 +38,6 @@ const itemVariants: Variants = {
         transition: {
             duration: 0.4,
             ease: "easeOut"
-        }
-    }
-}
-
-const buttonVariants: Variants = {
-    initial: {
-        scale: 1,
-        backgroundColor: "#10B981"
-    },
-    hover: {
-        scale: 1.02,
-        backgroundColor: "#059669",
-        transition: {
-            duration: 0.2,
-            ease: "easeInOut"
-        }
-    },
-    tap: {
-        scale: 0.98
-    },
-    loading: {
-        backgroundColor: "#059669",
-        transition: {
-            duration: 0.5,
-            repeat: Infinity,
-            repeatType: "reverse" as const
         }
     }
 }
@@ -99,7 +72,6 @@ const captchaVariants: Variants = {
     }
 }
 
-/* ================= VALIDATION ================= */
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const PHONE_REGEX = /^[6-9]\d{9}$/
@@ -126,7 +98,6 @@ const normalizeEmail = (email: string) => {
 const isValidEmail = (v: string) => EMAIL_REGEX.test(v)
 const isValidPhone = (v: string) => PHONE_REGEX.test(v)
 
-/* ================= ANALYTICS ================= */
 
 const track = (event: string, metadata?: any) => {
     console.log(`[CONTACT_FORM] ${event}`, new Date().toISOString(), metadata)
@@ -139,13 +110,9 @@ const track = (event: string, metadata?: any) => {
     }
 }
 
-/* ================= CAPTCHA UTILS ================= */
-
-// FIXED: Moved random generation to client-side only
 const createCaptcha = () => {
-    // This will only run on client
     if (typeof window === 'undefined') {
-        return { a: 5, b: 3, op: '+', answer: 8 } // Default static value for SSR
+        return { a: 5, b: 3, op: '+', answer: 8 } 
     }
 
     const operations = ['+', '-', '×']
@@ -171,12 +138,12 @@ const createCaptcha = () => {
     return { a, b, op, answer }
 }
 
-/* ================= COMPONENT ================= */
 
 export default function ContactSection() {
-    const [hasMounted, setHasMounted] = useState(false) // ✅ Add this
+    const [hasMounted, setHasMounted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showModal, setShowModal] = useState(false)
+    const [isDark, setIsDark] = useState(true)
 
     const [emailError, setEmailError] = useState<string | null>(null)
     const [phoneError, setPhoneError] = useState<string | null>(null)
@@ -192,29 +159,44 @@ export default function ContactSection() {
 
     const [focusedField, setFocusedField] = useState<string | null>(null)
 
-    /* CAPTCHA */
     const [captcha, setCaptcha] = useState<{ a: number; b: number; op: string; answer: number } | null>(null)
     const [captchaInput, setCaptchaInput] = useState("")
     const [captchaError, setCaptchaError] = useState<string | null>(null)
     const [captchaFails, setCaptchaFails] = useState(0)
     const [isCaptchaReady, setIsCaptchaReady] = useState(false)
 
-    /* reCAPTCHA */
     const [showRecaptcha, setShowRecaptcha] = useState(false)
     const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
     const recaptchaRef = useRef<ReCAPTCHA>(null)
 
-    /* Form refs */
     const formRef = useRef<HTMLFormElement>(null)
 
-    // ✅ Add this useEffect for client-only rendering
     useEffect(() => {
         setHasMounted(true)
+        
+        // Check initial theme
+        const checkTheme = () => {
+            const isDarkMode = document.documentElement.classList.contains('dark')
+            setIsDark(isDarkMode)
+        }
+        
+        checkTheme()
+        
+        // Listen for theme changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    checkTheme()
+                }
+            })
+        })
+        
+        observer.observe(document.documentElement, { attributes: true })
+        return () => observer.disconnect()
     }, [])
 
-    /* Initialize - CLIENT SIDE ONLY */
     useEffect(() => {
-        if (!hasMounted) return // ✅ Only run on client
+        if (!hasMounted) return 
 
         setCaptcha(createCaptcha())
         setIsCaptchaReady(true)
@@ -232,17 +214,15 @@ export default function ContactSection() {
         }
     }, [hasMounted])
 
-    /* Save form data */
     const updateFormData = (field: string, value: string) => {
-        if (!hasMounted) return // ✅ Guard client-only operations
+        if (!hasMounted) return 
         const newData = { ...formData, [field]: value }
         setFormData(newData)
         sessionStorage.setItem('contact_form_data', JSON.stringify(newData))
     }
 
-    /* Keyboard shortcuts */
     useEffect(() => {
-        if (!hasMounted) return // ✅ Only run on client
+        if (!hasMounted) return 
 
         const handler = (e: KeyboardEvent) => {
             if (e.altKey) {
@@ -280,9 +260,8 @@ export default function ContactSection() {
         return () => window.removeEventListener("keydown", handler)
     }, [hasMounted])
 
-    /* Reset form completely */
     const resetForm = () => {
-        if (!hasMounted) return // ✅ Guard client-only operations
+        if (!hasMounted) return 
 
         setFormData({
             firstName: "",
@@ -310,9 +289,8 @@ export default function ContactSection() {
         }
     }
 
-    /* Refresh captcha */
     const refreshCaptcha = () => {
-        if (!hasMounted) return // ✅ Guard client-only operations
+        if (!hasMounted) return 
 
         setCaptcha(createCaptcha())
         setCaptchaInput("")
@@ -323,7 +301,6 @@ export default function ContactSection() {
         })
     }
 
-    /* Handle reCAPTCHA change */
     const handleRecaptchaChange = (token: string | null) => {
         setRecaptchaToken(token)
         if (token) {
@@ -333,16 +310,14 @@ export default function ContactSection() {
         }
     }
 
-    /* Show reCAPTCHA widget */
     const showRecaptchaWidget = () => {
         setShowRecaptcha(true)
         toast.error("Too many failed attempts. Please complete the reCAPTCHA verification.")
     }
 
-    /* Submit */
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!hasMounted) return // ✅ Guard client-only operations
+        if (!hasMounted) return 
 
         const loadingToast = toast.loading("Validating your information...", {
             duration: Infinity,
@@ -354,7 +329,6 @@ export default function ContactSection() {
         const form = e.currentTarget as HTMLFormElement
         const formDataObj = new FormData(form)
 
-        /* Honeypot */
         if (formDataObj.get("company")) {
             toast.dismiss(loadingToast)
             toast.error("Submission blocked by security filter")
@@ -366,7 +340,6 @@ export default function ContactSection() {
         const email = normalizeEmail(formDataObj.get("email") as string)
         const phone = (formDataObj.get("phone") as string).replace(/\D/g, "")
 
-        /* Email validation */
         if (!isValidEmail(email)) {
             toast.dismiss(loadingToast)
             setEmailError("Please enter a valid email address")
@@ -378,7 +351,6 @@ export default function ContactSection() {
             return
         }
 
-        /* Phone validation */
         if (!isValidPhone(phone)) {
             toast.dismiss(loadingToast)
             setPhoneError("Please enter a valid 10-digit mobile number starting with 6-9")
@@ -390,7 +362,6 @@ export default function ContactSection() {
             return
         }
 
-        /* CAPTCHA validation */
         if (!captcha || Number(captchaInput) !== captcha.answer) {
             const newFails = captchaFails + 1
             setCaptchaFails(newFails)
@@ -415,15 +386,12 @@ export default function ContactSection() {
             return
         }
 
-        /* reCAPTCHA validation - only if triggered */
         if (showRecaptcha && !recaptchaToken) {
             toast.dismiss(loadingToast)
             toast.error("Please complete the reCAPTCHA verification")
             setLoading(false)
             return
         }
-
-        /* Prepare data */
         const data = {
             firstName: (formDataObj.get("firstName") as string).trim(),
             lastName: (formDataObj.get("lastName") as string).trim(),
@@ -437,13 +405,11 @@ export default function ContactSection() {
             recaptchaToken
         }
 
-        /* Update loading toast */
         toast.loading("Sending your message...", {
             id: loadingToast,
             duration: Infinity,
         })
 
-        /* Send email */
         try {
             const res = await sendMail(data)
 
@@ -453,7 +419,6 @@ export default function ContactSection() {
 
                 track("submit_success", { ...data, recaptchaToken: !!recaptchaToken })
 
-                /* Clean reset after submit */
                 setTimeout(() => {
                     resetForm()
                     toast.success("Form has been reset", {
@@ -461,7 +426,6 @@ export default function ContactSection() {
                     })
                 }, 1000)
 
-                /* Show thank you modal */
                 setTimeout(() => {
                     setShowModal(true)
                 }, 1500)
@@ -474,25 +438,24 @@ export default function ContactSection() {
 
             track("submit_failed", { error: error instanceof Error ? error.message : "Unknown error" })
 
-            /* Offer retry */
             setTimeout(() => {
                 toast.custom(
                     (t) => (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4"
+                            className={`${getToastBackground()} rounded-xl p-4`}
                         >
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-amber-400">Message not sent. Want to retry?</p>
+                                    <p className={`text-sm ${getToastTextColor()}`}>Message not sent. Want to retry?</p>
                                 </div>
                                 <button
                                     onClick={() => {
                                         toast.dismiss(t.id)
                                         form.requestSubmit()
                                     }}
-                                    className="px-3 py-1 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600 transition-colors"
+                                    className={`px-3 py-1 ${getRetryButtonStyle()} text-sm rounded-lg transition-colors`}
                                 >
                                     Retry
                                 </button>
@@ -507,28 +470,128 @@ export default function ContactSection() {
         }
     }
 
-    // ✅ Don't render the form until mounted
+    // Theme-based styles
+    const getSectionBackground = () => {
+        return isDark
+            ? "relative mt-28 bg-black border-t !border-emerald-500/15"
+            : "relative mt-28 bg-gradient-to-b from-gray-50 to-white border-t !border-emerald-500/30"
+    }
+
+    const getHeaderTextColor = () => {
+        return isDark ? "text-white" : "text-gray-900"
+    }
+
+    const getSubtitleColor = () => {
+        return isDark ? "text-gray-400" : "text-gray-600"
+    }
+
+    const getFormBackground = () => {
+        return isDark
+            ? "bg-white/5 border border-white/10"
+            : "bg-white/80 border border-gray-200"
+    }
+
+    const getInputBackground = () => {
+        return isDark ? "bg-black" : "bg-white"
+    }
+
+    const getInputBorder = () => {
+        return isDark ? "border-white/10" : "border-gray-300"
+    }
+
+    const getInputFocusBorder = () => {
+        return isDark ? "focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20" 
+                     : "focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
+    }
+
+    const getInputTextColor = () => {
+        return isDark ? "text-white" : "text-gray-900"
+    }
+
+    const getLabelColor = (hasValue: boolean, isFocused: boolean) => {
+        if (hasValue || isFocused) {
+            return isDark ? "text-emerald-400" : "text-emerald-600"
+        }
+        return isDark ? "text-gray-400" : "text-gray-500"
+    }
+
+    const getIconColor = () => {
+        return isDark ? "text-gray-400" : "text-gray-500"
+    }
+
+    const getButtonStyle = () => {
+        return isDark
+            ? "!bg-emerald-500 hover:!bg-emerald-600 text-black"
+            : "!bg-emerald-600 hover:!bg-emerald-700 text-white"
+    }
+
+    const getCaptchaRefreshColor = () => {
+        return isDark
+            ? "text-gray-500 hover:text-emerald-400"
+            : "text-gray-600 hover:text-emerald-600"
+    }
+
+    const getKeycapBackground = () => {
+        return isDark
+            ? "bg-black/50 border border-white/10"
+            : "bg-gray-100 border border-gray-300"
+    }
+
+    const getKeycapTextColor = () => {
+        return isDark ? "text-gray-300" : "text-gray-700"
+    }
+
+    const getToastBackground = () => {
+        return isDark
+            ? "bg-amber-500/10 border border-amber-500/20"
+            : "bg-amber-100 border border-amber-300"
+    }
+
+    const getToastTextColor = () => {
+        return isDark ? "text-amber-400" : "text-amber-700"
+    }
+
+    const getRetryButtonStyle = () => {
+        return isDark
+            ? "bg-amber-500 text-white hover:bg-amber-600"
+            : "bg-amber-600 text-white hover:bg-amber-700"
+    }
+
+    const getRecaptchaButtonColor = () => {
+        return isDark
+            ? "text-amber-400 hover:text-amber-300"
+            : "text-amber-600 hover:text-amber-700"
+    }
+
+    const getErrorBorder = () => {
+        return isDark ? "border-red-500 focus:border-red-500" : "border-red-400 focus:border-red-400"
+    }
+
+    const getErrorText = () => {
+        return isDark ? "text-red-400" : "text-red-500"
+    }
+
     if (!hasMounted) {
+        const getSkeletonBackground = () => {
+            return isDark ? "bg-gray-800/20" : "bg-gray-300/20"
+        }
+
         return (
-            <section id="contact" className="relative mt-28 bg-black border-t !border-emerald-500/15">
+            <section id="contact" className={getSectionBackground()}>
                 <div className="mx-auto max-w-[900px] px-4 py-20">
-                    {/* Skeleton loader */}
                     <div className="text-center mb-12">
-                        <div className="h-12 bg-gray-800/20 rounded-lg w-48 mx-auto mb-4 animate-pulse" />
-                        <div className="h-4 bg-gray-700/20 rounded w-32 mx-auto mb-12 animate-pulse" />
+                        <div className={`h-12 rounded-lg w-48 mx-auto mb-4 animate-pulse ${getSkeletonBackground()}`} />
+                        <div className={`h-4 rounded w-32 mx-auto mb-12 animate-pulse ${getSkeletonBackground()}`} />
                     </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6">
-                        {/* Name row skeleton */}
+                    <div className={`${getFormBackground()} rounded-2xl p-8 space-y-6`}>
                         <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="h-16 bg-gray-800/20 rounded-xl animate-pulse" />
-                            <div className="h-16 bg-gray-800/20 rounded-xl animate-pulse" />
+                            <div className={`h-16 rounded-xl animate-pulse ${getSkeletonBackground()}`} />
+                            <div className={`h-16 rounded-xl animate-pulse ${getSkeletonBackground()}`} />
                         </div>
-                        {/* Other fields skeleton */}
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="h-16 bg-gray-800/20 rounded-xl animate-pulse" />
+                            <div key={i} className={`h-16 rounded-xl animate-pulse ${getSkeletonBackground()}`} />
                         ))}
-                        {/* Submit button skeleton */}
-                        <div className="h-14 !bg-emerald-500/20 rounded-xl animate-pulse" />
+                        <div className={`h-14 rounded-xl animate-pulse ${getSkeletonBackground()}`} />
                     </div>
                 </div>
             </section>
@@ -536,18 +599,18 @@ export default function ContactSection() {
     }
 
     return (
-        <section id="contact" className="relative mt-28 bg-black border-t !border-emerald-500/15">
+        <section id="contact" className={getSectionBackground()}>
             <Toaster
                 position="top-right"
                 gutter={14}
                 toastOptions={{
                     duration: 3800,
                     style: {
-                        background: "rgba(0, 0, 0, 0.65)",
+                        background: isDark ? "rgba(0, 0, 0, 0.65)" : "rgba(255, 255, 255, 0.9)",
                         backdropFilter: "blur(12px)",
                         WebkitBackdropFilter: "blur(12px)",
-                        border: "1px solid rgba(0, 255, 128, 0.25)",
-                        color: "#d4ffd4",
+                        border: isDark ? "1px solid rgba(0, 255, 128, 0.25)" : "1px solid rgba(16, 185, 129, 0.3)",
+                        color: isDark ? "#d4ffd4" : "#065f46",
                         padding: "14px 18px",
                         borderRadius: "14px",
                         boxShadow: "0 8px 25px rgba(0,0,0,0.4)",
@@ -556,39 +619,39 @@ export default function ContactSection() {
                     success: {
                         iconTheme: {
                             primary: "#10B981",
-                            secondary: "#0D0D0D",
+                            secondary: isDark ? "#0D0D0D" : "#FFFFFF",
                         },
                         style: {
-                            border: "1px solid rgba(16, 185, 129, 0.45)",
-                            color: "#C8FFE0",
+                            border: isDark ? "1px solid rgba(16, 185, 129, 0.45)" : "1px solid rgba(16, 185, 129, 0.3)",
+                            color: isDark ? "#C8FFE0" : "#065f46",
                         },
                     },
 
                     error: {
                         iconTheme: {
                             primary: "#EF4444",
-                            secondary: "#0D0D0D",
+                            secondary: isDark ? "#0D0D0D" : "#FFFFFF",
                         },
                         style: {
-                            border: "1px solid rgba(239, 68, 68, 0.4)",
-                            color: "#FFD2D2",
+                            border: isDark ? "1px solid rgba(239, 68, 68, 0.4)" : "1px solid rgba(239, 68, 68, 0.3)",
+                            color: isDark ? "#FFD2D2" : "#7f1d1d",
                         },
                     },
 
                     loading: {
                         iconTheme: {
                             primary: "#FDE047",
-                            secondary: "#0D0D0D",
+                            secondary: isDark ? "#0D0D0D" : "#FFFFFF",
                         },
                         style: {
-                            border: "1px solid rgba(253, 224, 71, 0.4)",
-                            color: "#FFF8C8",
+                            border: isDark ? "1px solid rgba(253, 224, 71, 0.4)" : "1px solid rgba(253, 224, 71, 0.3)",
+                            color: isDark ? "#FFF8C8" : "#854d0e",
                         },
                     },
                 }}
             />
 
-            <ThankYouModal open={showModal} onClose={() => setShowModal(false)} />
+            <ThankYouModal open={showModal} onClose={() => setShowModal(false)} isDark={isDark} />
 
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -604,9 +667,9 @@ export default function ContactSection() {
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
                 >
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white">Contact</h2>
+                    <h2 className={`text-3xl sm:text-4xl font-bold ${getHeaderTextColor()}`}>Contact</h2>
                     <motion.p
-                        className="text-gray-400 mt-2"
+                        className={`mt-2 ${getSubtitleColor()}`}
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
@@ -623,16 +686,14 @@ export default function ContactSection() {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
-                    suppressHydrationWarning // ✅ Add this to suppress hydration warnings
-                    className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6"
+                    suppressHydrationWarning 
+                    className={`rounded-2xl p-6 sm:p-8 space-y-6 ${getFormBackground()}`}
                 >
                     <input type="text" name="company" className="hidden" suppressHydrationWarning />
-
-                    {/* Name Row */}
                     <div className="grid sm:grid-cols-2 gap-4">
                         <motion.div variants={itemVariants} className="relative">
                             <div className="relative">
-                                <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <FaUser className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${getIconColor()}`} />
                                 <input
                                     name="firstName"
                                     type="text"
@@ -640,10 +701,10 @@ export default function ContactSection() {
                                     onFocus={() => setFocusedField("firstName")}
                                     onBlur={() => setFocusedField(null)}
                                     onChange={(e) => updateFormData('firstName', e.target.value)}
-                                    className="w-full pl-12 pr-4 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
-                                    suppressHydrationWarning // ✅ Add this
+                                    className={`w-full pl-12 pr-4 py-4 ${getInputBackground()} border ${getInputBorder()} rounded-xl ${getInputTextColor()} focus:outline-none ${getInputFocusBorder()}`}
+                                    suppressHydrationWarning 
                                 />
-                                <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.firstName || focusedField === "firstName" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
+                                <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.firstName || focusedField === "firstName" ? 'top-2 text-xs' : 'top-1/2 -translate-y-1/2'} ${getLabelColor(!!formData.firstName, focusedField === "firstName")}`}>
                                     First Name
                                 </label>
                             </div>
@@ -651,7 +712,7 @@ export default function ContactSection() {
 
                         <motion.div variants={itemVariants} className="relative">
                             <div className="relative">
-                                <IoMdPerson className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <IoMdPerson className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${getIconColor()}`} />
                                 <input
                                     name="lastName"
                                     type="text"
@@ -659,20 +720,19 @@ export default function ContactSection() {
                                     onFocus={() => setFocusedField("lastName")}
                                     onBlur={() => setFocusedField(null)}
                                     onChange={(e) => updateFormData('lastName', e.target.value)}
-                                    className="w-full pl-12 pr-4 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
-                                    suppressHydrationWarning // ✅ Add this
+                                    className={`w-full pl-12 pr-4 py-4 ${getInputBackground()} border ${getInputBorder()} rounded-xl ${getInputTextColor()} focus:outline-none ${getInputFocusBorder()}`}
+                                    suppressHydrationWarning 
                                 />
-                                <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.lastName || focusedField === "lastName" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
+                                <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.lastName || focusedField === "lastName" ? 'top-2 text-xs' : 'top-1/2 -translate-y-1/2'} ${getLabelColor(!!formData.lastName, focusedField === "lastName")}`}>
                                     Last Name
                                 </label>
                             </div>
                         </motion.div>
                     </div>
 
-                    {/* Email */}
                     <motion.div variants={itemVariants} className="relative">
                         <div className="relative">
-                            <IoMdMail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <IoMdMail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${getIconColor()}`} />
                             <input
                                 name="email"
                                 type="email"
@@ -691,24 +751,24 @@ export default function ContactSection() {
                                         setEmailError(null)
                                     }
                                 }}
-                                className={`w-full pl-12 pr-4 py-4 bg-black border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${emailError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-emerald-400'}`}
-                                suppressHydrationWarning // ✅ Add this
+                                className={`w-full pl-12 pr-4 py-4 ${getInputBackground()} border rounded-xl ${getInputTextColor()} focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${emailError ? getErrorBorder() : `${getInputBorder()} ${getInputFocusBorder()}`}`}
+                                suppressHydrationWarning 
                             />
-                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.email || focusedField === "email" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
+                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.email || focusedField === "email" ? 'top-2 text-xs' : 'top-1/2 -translate-y-1/2'} ${getLabelColor(!!formData.email, focusedField === "email")}`}>
                                 Email
                             </label>
                         </div>
                         {emailError && (
-                            <p className="mt-1 text-xs text-red-400">
+                            <p className={`mt-1 text-xs ${getErrorText()}`}>
                                 {emailError}
                             </p>
                         )}
                     </motion.div>
 
-                    {/* Phone */}
+
                     <motion.div variants={itemVariants} className="relative">
                         <div className="relative">
-                            <FaPhoneAlt className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <FaPhoneAlt className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${getIconColor()}`} />
                             <input
                                 name="phone"
                                 type="text"
@@ -727,32 +787,31 @@ export default function ContactSection() {
                                         setPhoneError(null)
                                     }
                                 }}
-                                className={`w-full pl-12 pr-4 py-4 bg-black border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-emerald-400'}`}
-                                suppressHydrationWarning // ✅ Add this
+                                className={`w-full pl-12 pr-4 py-4 ${getInputBackground()} border rounded-xl ${getInputTextColor()} focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${phoneError ? getErrorBorder() : `${getInputBorder()} ${getInputFocusBorder()}`}`}
+                                suppressHydrationWarning 
                             />
-                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.phone || focusedField === "phone" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
+                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.phone || focusedField === "phone" ? 'top-2 text-xs' : 'top-1/2 -translate-y-1/2'} ${getLabelColor(!!formData.phone, focusedField === "phone")}`}>
                                 Phone Number
                             </label>
                         </div>
                         {phoneError && (
-                            <p className="mt-1 text-xs text-red-400">
+                            <p className={`mt-1 text-xs ${getErrorText()}`}>
                                 {phoneError}
                             </p>
                         )}
                     </motion.div>
 
-                    {/* Subject */}
                     <motion.div variants={itemVariants} className="relative">
                         <div className="relative">
-                            <MdOutlineSubject className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <MdOutlineSubject className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${getIconColor()}`} />
                             <select
                                 name="subject"
                                 value={formData.subject}
                                 onFocus={() => setFocusedField("subject")}
                                 onBlur={() => setFocusedField(null)}
                                 onChange={(e) => updateFormData('subject', e.target.value)}
-                                className="w-full pl-12 pr-10 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 appearance-none"
-                                suppressHydrationWarning // ✅ Add this
+                                className={`w-full pl-12 pr-10 py-4 ${getInputBackground()} border ${getInputBorder()} rounded-xl ${getInputTextColor()} focus:outline-none ${getInputFocusBorder()} appearance-none`}
+                                suppressHydrationWarning 
                             >
                                 <option value="Job Opportunity">Job Opportunity</option>
                                 <option value="Project Collaboration">Project Collaboration</option>
@@ -761,17 +820,16 @@ export default function ContactSection() {
                                 <option value="Freelance Work">Freelance Work</option>
                                 <option value="Feedback/Suggestion">Feedback/Suggestion</option>
                             </select>
-                            <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.subject || focusedField === "subject" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
+                            <FaChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 ${getIconColor()} pointer-events-none`} />
+                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.subject || focusedField === "subject" ? 'top-2 text-xs' : 'top-1/2 -translate-y-1/2'} ${getLabelColor(!!formData.subject, focusedField === "subject")}`}>
                                 Subject
                             </label>
                         </div>
                     </motion.div>
 
-                    {/* Message */}
                     <motion.div variants={itemVariants} className="relative">
                         <div className="relative">
-                            <RiMessage2Fill className="absolute left-4 top-4 w-4 h-4 text-gray-400" />
+                            <RiMessage2Fill className={`absolute left-4 top-4 w-4 h-4 ${getIconColor()}`} />
                             <textarea
                                 name="message"
                                 rows={4}
@@ -779,24 +837,23 @@ export default function ContactSection() {
                                 onFocus={() => setFocusedField("message")}
                                 onBlur={() => setFocusedField(null)}
                                 onChange={(e) => updateFormData('message', e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-black border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 resize-none"
-                                suppressHydrationWarning // ✅ Add this
+                                className={`w-full pl-12 pr-4 py-4 ${getInputBackground()} border ${getInputBorder()} rounded-xl ${getInputTextColor()} focus:outline-none ${getInputFocusBorder()} resize-none`}
+                                suppressHydrationWarning 
                             />
-                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.message || focusedField === "message" ? 'top-2 text-xs text-emerald-400' : 'top-4 text-gray-400'}`}>
+                            <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${formData.message || focusedField === "message" ? 'top-2 text-xs' : 'top-4'} ${getLabelColor(!!formData.message, focusedField === "message")}`}>
                                 Message
                             </label>
                         </div>
                     </motion.div>
 
-                    {/* CAPTCHA */}
                     <motion.div variants={itemVariants}>
                         <div className="flex items-center justify-between mb-1">
-                            <label className="text-xs text-gray-400">
+                            <label className={`text-xs ${getIconColor()}`}>
                                 {isCaptchaReady && captcha ? (
                                     <>Human check: {captcha.a} {captcha.op || '+'} {captcha.b} = ?</>
                                 ) : (
                                     <span className="inline-flex items-center gap-2">
-                                        <span className="w-20 h-4 bg-white/10 rounded animate-pulse"></span>
+                                        <span className={`w-20 h-4 rounded animate-pulse ${isDark ? 'bg-white/10' : 'bg-gray-300/30'}`}></span>
                                     </span>
                                 )}
                             </label>
@@ -804,7 +861,7 @@ export default function ContactSection() {
                                 <button
                                     type="button"
                                     onClick={refreshCaptcha}
-                                    className="text-xs text-gray-500 hover:text-emerald-400 transition-colors flex items-center gap-1"
+                                    className={`text-xs transition-colors flex items-center gap-1 ${getCaptchaRefreshColor()}`}
                                 >
                                     <span>Refresh</span>
                                     <BiRefresh className="w-3 h-3" />
@@ -814,7 +871,7 @@ export default function ContactSection() {
 
                         {isCaptchaReady ? (
                             <div className="relative">
-                                <FaShieldAlt className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <FaShieldAlt className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${getIconColor()}`} />
                                 <input
                                     name="captcha"
                                     type="text"
@@ -828,21 +885,21 @@ export default function ContactSection() {
                                         setCaptchaInput(e.target.value)
                                         setCaptchaError(null)
                                     }}
-                                    className={`w-full pl-12 pr-4 py-4 bg-black border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${captchaError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-emerald-400'}`}
-                                    suppressHydrationWarning // ✅ Add this
+                                    className={`w-full pl-12 pr-4 py-4 ${getInputBackground()} border rounded-xl ${getInputTextColor()} focus:outline-none focus:ring-2 focus:ring-emerald-500/20 ${captchaError ? getErrorBorder() : `${getInputBorder()} ${getInputFocusBorder()}`}`}
+                                    suppressHydrationWarning 
                                 />
-                                <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${captchaInput || focusedField === "captcha" ? 'top-2 text-xs text-emerald-400' : 'top-1/2 -translate-y-1/2 text-gray-400'}`}>
+                                <label className={`absolute left-12 transform transition-all duration-200 pointer-events-none ${captchaInput || focusedField === "captcha" ? 'top-2 text-xs' : 'top-1/2 -translate-y-1/2'} ${getLabelColor(!!captchaInput, focusedField === "captcha")}`}>
                                     CAPTCHA Answer
                                 </label>
                             </div>
                         ) : (
-                            <div className="w-full px-4 py-3 bg-black border border-white/10 rounded-xl">
-                                <div className="w-24 h-4 bg-white/10 rounded animate-pulse"></div>
+                            <div className={`w-full px-4 py-3 ${getInputBackground()} border ${getInputBorder()} rounded-xl`}>
+                                <div className={`w-24 h-4 rounded animate-pulse ${isDark ? 'bg-white/10' : 'bg-gray-300/30'}`}></div>
                             </div>
                         )}
 
                         {captchaError && (
-                            <p className="mt-1 text-xs text-red-400">
+                            <p className={`mt-1 text-xs ${getErrorText()}`}>
                                 {captchaError}
                             </p>
                         )}
@@ -851,7 +908,7 @@ export default function ContactSection() {
                                 <button
                                     type="button"
                                     onClick={showRecaptchaWidget}
-                                    className="text-xs text-amber-400 hover:text-amber-300 underline transition-colors"
+                                    className={`text-xs underline transition-colors ${getRecaptchaButtonColor()}`}
                                 >
                                     Too many failed attempts. Click here to verify with reCAPTCHA.
                                 </button>
@@ -859,13 +916,12 @@ export default function ContactSection() {
                         )}
                     </motion.div>
 
-                    {/* Invisible reCAPTCHA */}
                     {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
                         <div className="flex justify-center">
                             <ReCAPTCHA
                                 ref={recaptchaRef}
                                 sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                                theme="dark"
+                                theme={isDark ? "dark" : "light"}
                                 size={showRecaptcha ? "normal" : "invisible"}
                                 onChange={handleRecaptchaChange}
                                 onErrored={() => {
@@ -879,24 +935,22 @@ export default function ContactSection() {
                         </div>
                     )}
 
-                    {/* Submit Button */}
                     <motion.div variants={itemVariants}>
                         <button
                             type="submit"
                             disabled={loading || !isCaptchaReady}
-                            className="w-full flex items-center justify-center gap-2 !bg-emerald-500 hover:!bg-emerald-600 text-black py-4 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-                            suppressHydrationWarning // ✅ Add this
+                            className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] ${getButtonStyle()}`}
+                            suppressHydrationWarning 
                         >
                             <FaPaperPlane className="w-4 h-4" />
                             {loading ? "Sending..." : "Send Message"}
                         </button>
                     </motion.div>
 
-                    {/* Keyboard shortcuts hint */}
-                    <div className="text-center pt-4 border-t border-white/10">
-                        <p className="text-xs text-gray-500">
-                            Press <kbd className="px-1 py-0.5 bg-black/50 border border-white/10 rounded text-xs">Alt</kbd> + <kbd className="px-1 py-0.5 bg-black/50 border border-white/10 rounded text-xs">Letter</kbd> to focus fields •{" "}
-                            Press <kbd className="px-1 py-0.5 bg-black/50 border border-white/10 rounded text-xs">Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-black/50 border border-white/10 rounded text-xs">Enter</kbd> to submit
+                    <div className={`text-center pt-4 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                        <p className={`text-xs ${getIconColor()}`}>
+                            Press <kbd className={`px-1 py-0.5 rounded text-xs ${getKeycapBackground()} ${getKeycapTextColor()}`}>Alt</kbd> + <kbd className={`px-1 py-0.5 rounded text-xs ${getKeycapBackground()} ${getKeycapTextColor()}`}>Letter</kbd> to focus fields •{" "}
+                            Press <kbd className={`px-1 py-0.5 rounded text-xs ${getKeycapBackground()} ${getKeycapTextColor()}`}>Ctrl</kbd> + <kbd className={`px-1 py-0.5 rounded text-xs ${getKeycapBackground()} ${getKeycapTextColor()}`}>Enter</kbd> to submit
                         </p>
                     </div>
                 </motion.form>

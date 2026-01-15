@@ -6,7 +6,6 @@ import {
     ArrowDown,
     Sparkles,
     Code2,
-    Terminal,
     MousePointer2,
     User
 } from 'lucide-react'
@@ -21,43 +20,28 @@ const ROLES = [
     'Scalable System Builder',
 ]
 
-// Animation variants with proper typing
 const orbRingVariants = (index: number): Variants => ({
-  animate: {
-    rotate: 360,
-    transition: {
-      duration: 25 + index * 5,
-      repeat: Infinity,
-      ease: "linear" as const,
+    animate: {
+        rotate: 360,
+        transition: {
+            duration: 25 + index * 5,
+            repeat: Infinity,
+            ease: "linear" as const,
+        }
     }
-  }
 })
 
-const glowVariants: Variants = {
-  animate: {
-    boxShadow: [
-      '0 0 70px rgba(16,185,129,0.4)',
-      '0 0 100px rgba(34,197,94,0.5)',
-      '0 0 70px rgba(16,185,129,0.4)',
-    ],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-    }
-  }
-}
-
-// Move stats array outside component or memoize at top level
 const STATS_DATA = [
     { value: '1+', label: 'Years Experience' },
     { value: '100%', label: 'Backend Focus' },
 ]
 
 export default function HeroSection() {
-    const { resolvedTheme } = useTheme()
+    const { theme, resolvedTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
     const [typedText, setTypedText] = useState('')
     const [textIndex, setTextIndex] = useState(0)
+    const [isDarkMode, setIsDarkMode] = useState(true)
     const shouldReduceMotion = useReducedMotion()
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
     const animationFrameRef = useRef<number | null>(null)
@@ -69,11 +53,14 @@ export default function HeroSection() {
     const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
     const y = useTransform(scrollYProgress, [0, 0.5], [0, 60])
 
-    // Memoize stats at top level (before any conditionals)
     const stats = useMemo(() => STATS_DATA, [])
 
     useEffect(() => {
         setMounted(true)
+        // Check initial theme
+        const isDark = resolvedTheme === 'dark'
+        setIsDarkMode(isDark)
+        
         return () => {
             if (typingTimeoutRef.current) {
                 clearTimeout(typingTimeoutRef.current)
@@ -84,9 +71,8 @@ export default function HeroSection() {
                 animationFrameRef.current = null
             }
         }
-    }, [])
+    }, [resolvedTheme])
 
-    // Optimized typing effect
     useEffect(() => {
         if (!mounted || shouldReduceMotion) {
             setTypedText(ROLES[textIndex])
@@ -99,7 +85,7 @@ export default function HeroSection() {
 
         const type = () => {
             if (isCancelled) return
-            
+
             if (charIndex <= currentRole.length) {
                 setTypedText(currentRole.substring(0, charIndex))
                 charIndex++
@@ -107,11 +93,11 @@ export default function HeroSection() {
             } else {
                 typingTimeoutRef.current = setTimeout(() => {
                     if (isCancelled) return
-                    
+
                     let removeIndex = currentRole.length
                     const remove = () => {
                         if (isCancelled) return
-                        
+
                         if (removeIndex >= 0) {
                             setTypedText(currentRole.substring(0, removeIndex))
                             removeIndex--
@@ -126,9 +112,9 @@ export default function HeroSection() {
                 }, 1200)
             }
         }
-        
+
         type()
-        
+
         return () => {
             isCancelled = true
             if (typingTimeoutRef.current) {
@@ -141,95 +127,179 @@ export default function HeroSection() {
     const handleScrollDown = useCallback(() => {
         const nextSection = document.getElementById('skills')
         if (nextSection) {
-            nextSection.scrollIntoView({ 
+            nextSection.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             })
         }
     }, [])
 
-    if (!mounted) return null
+    // Theme-based styles
+    const getBackgroundGradient = () => {
+        return isDarkMode
+            ? "from-gray-950 via-emerald-950/20 to-green-950/10"
+            : "from-emerald-50 via-green-50/80 to-lime-50/60"
+    }
 
-    const isDark = resolvedTheme === 'dark'
+    const getBackgroundColor = () => {
+        return isDarkMode ? '#060f0b' : '#f0fdf4'
+    }
+
+    const getPrimaryTextColor = () => {
+        return isDarkMode ? "text-gray-200" : "text-gray-800"
+    }
+
+    const getSecondaryTextColor = () => {
+        return isDarkMode ? "text-gray-400" : "text-gray-600"
+    }
+
+    const getAccentColor = () => {
+        return isDarkMode ? "text-green-400" : "text-emerald-600"
+    }
+
+    const getMutedAccentColor = () => {
+        return isDarkMode ? "text-green-300" : "text-emerald-500"
+    }
+
+    const getBorderColor = () => {
+        return isDarkMode ? "border-gray-800" : "border-emerald-200"
+    }
+
+    const getBorderAccentColor = () => {
+        return isDarkMode ? "border-green-800/30" : "border-emerald-400/30"
+    }
+
+    const getBgAccentColor = () => {
+        return isDarkMode ? "bg-green-900/20" : "bg-emerald-100/80"
+    }
+
+    const getCardBg = () => {
+        return isDarkMode 
+            ? "bg-black/20 backdrop-blur-md border border-gray-800"
+            : "bg-white/70 backdrop-blur-sm border border-emerald-200/50"
+    }
+
+    const getGlowVariants = (): Variants => ({
+        animate: {
+            boxShadow: isDarkMode
+                ? [
+                    '0 0 70px rgba(68, 183, 139, 0.4)',
+                    '0 0 100px rgba(52, 211, 153, 0.5)',
+                    '0 0 70px rgba(68, 183, 139, 0.4)',
+                ]
+                : [
+                    '0 0 70px rgba(68, 183, 139, 0.2)',
+                    '0 0 100px rgba(52, 211, 153, 0.3)',
+                    '0 0 70px rgba(68, 183, 139, 0.2)',
+                ],
+            transition: {
+                duration: 4,
+                repeat: Infinity,
+            }
+        }
+    })
+
+    const getTerminalBg = () => {
+        return isDarkMode
+            ? "bg-[#0F2319] border-green-800/30 shadow-[0_0_30px_rgba(68,183,139,0.15)]"
+            : "bg-emerald-50/90 border-emerald-400/20 shadow-[0_0_30px_rgba(68,183,139,0.1)]"
+    }
+
+    const getTerminalHeaderBg = () => {
+        return isDarkMode
+            ? "bg-[#092B1A] border-green-800/20"
+            : "bg-emerald-100/80 border-emerald-400/20"
+    }
+
+    const getRingBorderColor = (ring: number) => {
+        if (isDarkMode) {
+            return `rgba(68, 183, 139, ${0.3 - ring * 0.08})`
+        } else {
+            return `rgba(16, 185, 129, ${0.2 - ring * 0.05})`
+        }
+    }
+
+    if (!mounted) return null
 
     return (
         <section
             ref={containerRef}
             id="hero"
-            className="
-        relative min-h-screen overflow-hidden pt-16
-        bg-gradient-to-br
-        from-emerald-50 via-green-50/40 to-lime-50/10
-        dark:from-gray-950 dark:via-emerald-950/20 dark:to-green-950/10
-      "
+            className={`
+                relative min-h-screen overflow-hidden 
+                pt-24 md:pt-20 lg:pt-16  
+                px-4 md:px-6 lg:px-8     
+                bg-gradient-to-br ${getBackgroundGradient()}
+                mt-14 lg:mt-0
+                transition-colors duration-300
+            `}
+            style={{
+                backgroundColor: getBackgroundColor()
+            }}
         >
-            {/* HERO INDICATOR */}
+            {/* Status Badge */}
             <div className="absolute top-6 left-4 sm:left-8 z-50">
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full glass-effect">
-                    <div className="w-2 h-2 bg-emerald-500 animate-pulse rounded-full" />
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                <div className={`
+                    flex items-center gap-2 px-3 py-1 rounded-full 
+                    backdrop-blur-md ${getBorderColor()} 
+                    ${isDarkMode ? "bg-black/20" : "bg-white/60"}
+                    transition-colors duration-300
+                `}>
+                    <div className={`w-2 h-2 ${isDarkMode ? "bg-green-500" : "bg-emerald-500"} animate-pulse rounded-full`} />
+                    <span className={`text-xs font-semibold ${getSecondaryTextColor()}`}>
                         HERO 1 / 3
                     </span>
                 </div>
             </div>
 
-            {/* NAME BADGE - Top Right */}
+            {/* Name Badge */}
             <div className="absolute top-6 right-4 sm:right-8 z-50">
-                <div className="flex items-center gap-2 px-4 py-2 mt-4 rounded-full bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 backdrop-blur-sm">
-                    <User className="w-3 h-3 text-emerald-400" />
-                    <span className="text-sm font-bold text-gray-800 dark:text-emerald-300">
+                <div className={`
+                    flex items-center gap-2 px-4 py-2 rounded-full 
+                    ${getBgAccentColor()} ${getBorderAccentColor()} 
+                    backdrop-blur-sm transition-colors duration-300
+                `}>
+                    <User className={`w-3 h-3 ${getAccentColor()}`} />
+                    <span className={`text-sm font-bold ${getMutedAccentColor()}`}>
                         SanthoshRaj K
                     </span>
                 </div>
             </div>
 
-            {/* BACKGROUND - Optimized gradients */}
+            {/* Background Effects */}
             <div className="absolute inset-0">
                 <div
-                    className="absolute inset-0 opacity-10 dark:opacity-5"
+                    className="absolute inset-0 opacity-10"
                     style={{
-                        backgroundImage: `
-              radial-gradient(circle at 20% 80%, rgba(16,185,129,0.35) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(34,197,94,0.25) 0%, transparent 50%)
-            `,
+                        backgroundImage: isDarkMode
+                            ? `radial-gradient(circle at 20% 80%, rgba(68, 183, 139, 0.35) 0%, transparent 50%),
+                               radial-gradient(circle at 80% 20%, rgba(9, 43, 26, 0.25) 0%, transparent 50%)`
+                            : `radial-gradient(circle at 20% 80%, rgba(68, 183, 139, 0.15) 0%, transparent 50%),
+                               radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)`,
                     }}
                 />
             </div>
 
+            {/* Particle Background with theme */}
             <ParticleBackground />
 
-            {/* MAIN CONTENT */}
-            <div
-                className="
-          relative z-10 max-w-7xl mx-auto
-          px-4 sm:px-6 lg:px-8
-          min-h-screen
-          flex flex-col lg:flex-row
-          items-center justify-center
-        "
-            >
-                {/* LEFT */}
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-screen flex flex-col lg:flex-row items-center justify-center">
+                {/* Left Column */}
                 <div className="w-full lg:w-2/5 flex flex-col items-center lg:items-start relative">
-
-                    {/* SIDE TEXT - Only show on larger screens */}
-                    <div className="
-              absolute -top-6 lg:top-0 lg:-left-24
-              transform -rotate-90 origin-left
-              hidden lg:block 
-            "
-                    >
+                    {/* Vertical Name Label */}
+                    <div className="absolute -top-6 lg:top-0 lg:-left-24 transform -rotate-90 origin-left hidden lg:block">
                         <div className="flex items-center gap-2">
-                            <span className="text-xs tracking-widest font-bold text-emerald-600">
+                            <span className={`text-xs tracking-widest font-bold ${getAccentColor()}`}>
                                 SANTHOSHRAJ K
                             </span>
-                            <div className="w-8 h-px bg-gradient-to-r from-emerald-500 to-transparent" />
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className={`w-8 h-px bg-gradient-to-r ${isDarkMode ? "from-green-400" : "from-emerald-500"} to-transparent`} />
+                            <span className={`text-xs ${getSecondaryTextColor()}`}>
                                 ACTIVE
                             </span>
                         </div>
                     </div>
 
-                    {/* ORB with Name - Optimized animations */}
+                    {/* Orb Rings & Profile */}
                     <div className="relative mb-12 flex justify-center w-full">
                         {[0, 1, 2].map(ring => (
                             <motion.div
@@ -240,39 +310,39 @@ export default function HeroSection() {
                                 style={{
                                     width: `${160 + ring * 70}px`,
                                     height: `${160 + ring * 70}px`,
-                                    borderColor: `rgba(16,185,129,${0.3 - ring * 0.08})`,
+                                    borderColor: getRingBorderColor(ring),
                                 }}
                             />
                         ))}
 
                         <motion.div
                             className="relative w-44 h-44 sm:w-48 sm:h-48 rounded-full overflow-hidden"
-                            variants={glowVariants}
+                            variants={getGlowVariants()}
                             animate={shouldReduceMotion ? {} : "animate"}
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500" />
-                            <div className="absolute inset-6 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center">
-                                <Code2 
-                                    size={60} 
-                                    className="text-emerald-600 mb-2" 
+                            <div className={`absolute inset-0 ${isDarkMode ? "bg-gradient-to-br from-green-600 via-emerald-700 to-teal-600" : "bg-gradient-to-br from-emerald-500 via-green-500 to-teal-400"}`} />
+                            <div className={`absolute inset-6 rounded-full flex flex-col items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-white"}`}>
+                                <Code2
+                                    size={60}
+                                    className={getAccentColor()}
                                     aria-hidden="true"
                                 />
                             </div>
                         </motion.div>
                     </div>
 
-                    {/* STATS - Use the memoized stats */}
+                    {/* Stats Cards */}
                     <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
                         {stats.map(stat => (
-                            <div 
-                                key={stat.label} 
-                                className="glass-effect p-4 rounded-xl text-center"
+                            <div
+                                key={stat.label}
+                                className={`p-4 rounded-xl text-center ${getCardBg()} transition-colors duration-300`}
                                 role="listitem"
                             >
-                                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                <div className={`text-2xl font-bold ${getPrimaryTextColor()}`}>
                                     {stat.value}
                                 </div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                <div className={`text-sm ${getSecondaryTextColor()}`}>
                                     {stat.label}
                                 </div>
                             </div>
@@ -280,91 +350,134 @@ export default function HeroSection() {
                     </div>
                 </div>
 
-                {/* RIGHT */}
+                {/* Right Column */}
                 <div className="w-full lg:w-3/5 lg:pl-16 mt-12 lg:mt-0">
-
-                    {/* HEADING with Name */}
+                    {/* Header with Name Badge */}
                     <div className="mb-8">
                         <div className="mb-4 mt-2">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-2">
-                                <Sparkles className="w-4 h-4 text-emerald-400" />
-                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-300">
+                            <div className={`
+                                inline-flex items-center gap-2 px-4 py-2 rounded-full 
+                                ${getBgAccentColor()} ${getBorderAccentColor()} 
+                                backdrop-blur-sm transition-colors duration-300
+                            `}>
+                                <Sparkles className={`w-4 h-4 ${getAccentColor()}`} />
+                                <span className={`text-sm font-bold ${getMutedAccentColor()}`}>
                                     SanthoshRaj K
                                 </span>
                             </div>
                         </div>
 
+                        {/* Main Headline */}
                         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none">
-                            <span 
-                                className="block bg-gradient-to-r from-emerald-600 via-green-600 to-lime-600 bg-clip-text text-transparent"
+                            <span
+                                className={`
+                                    block bg-gradient-to-r 
+                                    ${isDarkMode 
+                                        ? "from-green-400 via-emerald-400 to-teal-400" 
+                                        : "from-emerald-600 via-green-600 to-teal-600"
+                                    } 
+                                    bg-clip-text text-transparent
+                                `}
                                 aria-label="Build scalable systems"
                             >
                                 BUILD
                             </span>
-                            <span className="block text-gray-800 dark:text-gray-200">
+                            <span className={`block ${getPrimaryTextColor()}`}>
                                 SCALABLE
                             </span>
-                            <span className="flex items-center gap-4 text-gray-800 dark:text-gray-200">
+                            <span className={`flex items-center gap-4 ${getPrimaryTextColor()}`}>
                                 SYSTEMS
-                                <MousePointer2 
-                                    className="text-emerald-500" 
-                                    size={42} 
+                                <MousePointer2
+                                    className={getAccentColor()}
+                                    size={42}
                                     aria-hidden="true"
                                 />
                             </span>
                         </h1>
 
-                        <p className="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl">
-                            Hi, I'm <span className="font-bold text-emerald-600">SanthoshRaj K</span>, specializing in designing secure, scalable and maintainable web applications using
-                            <span className="font-semibold text-emerald-600"> Django</span>,
+                        {/* Description */}
+                        <p className={`mt-6 text-lg md:text-xl ${getSecondaryTextColor()} max-w-2xl`}>
+                            Hi, I'm <span className={`font-bold ${getAccentColor()}`}>SanthoshRaj K</span>, specializing in designing secure, scalable and maintainable web applications using
+                            <span className={`font-semibold ${getAccentColor()}`}> Django</span>,
                             crafting modern interfaces with
-                            <span className="font-semibold text-green-600"> React</span>, and
+                            <span className={`font-semibold ${getAccentColor()}`}> React</span>, and
                             solving real-world problems through
-                            <span className="font-semibold text-lime-600"> Python</span>.
+                            <span className={`font-semibold ${isDarkMode ? "text-teal-400" : "text-teal-600"}`}> Python</span>.
                         </p>
                     </div>
 
-                    {/* ROLE */}
-                    <div 
-                        className="glass-effect p-4 rounded-2xl inline-flex items-center gap-4"
+                    {/* Terminal Component */}
+                    <div
                         role="status"
                         aria-live="polite"
                         aria-atomic="true"
+                        className={`
+                            relative
+                            w-fit
+                            rounded-xl
+                            ${getTerminalBg()}
+                            overflow-hidden
+                            font-mono
+                            transition-colors duration-300
+                        `}
                     >
-                        <Terminal className="text-emerald-500" size={28} aria-hidden="true" />
-                        <div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {/* Terminal Header */}
+                        <div className={`flex items-center gap-2 px-4 py-2 ${getTerminalHeaderBg()} border-b ${getBorderAccentColor()}`}>
+                            <span className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-red-500/80" : "bg-red-400/80"}`} />
+                            <span className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-yellow-500/80" : "bg-yellow-400/80"}`} />
+                            <span className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-green-500/80" : "bg-emerald-500/80"}`} />
+                            <span className={`ml-3 text-xs ${getSecondaryTextColor()}`}>terminal</span>
+                        </div>
+
+                        {/* Terminal Content */}
+                        <div className="p-4 min-w-[280px]">
+                            <div className={`text-xs ${getSecondaryTextColor()} mb-1`}>
                                 CURRENT ROLE
                             </div>
-                            <div className="font-mono text-xl text-gray-800 dark:text-gray-200">
-                                {typedText}
-                                <span 
-                                    className="ml-1 inline-block w-[2px] h-6 bg-emerald-500 animate-pulse"
+
+                            <div className={`flex items-center gap-2 ${isDarkMode ? "text-green-300" : "text-emerald-600"} text-lg tracking-wide`}>
+                                <span className={getAccentColor()}>$</span>
+                                <span className={isDarkMode ? "drop-shadow-[0_0_8px_rgba(68,183,139,0.6)]" : "drop-shadow-[0_0_8px_rgba(68,183,139,0.3)]"}>
+                                    {typedText}
+                                </span>
+
+                                <span
                                     aria-hidden="true"
+                                    className={`
+                                        inline-block
+                                        w-[2px]
+                                        h-5
+                                        ${isDarkMode ? "bg-green-300" : "bg-emerald-500"}
+                                        animate-[blink_1s_steps(2,start)_infinite]
+                                    `}
                                 />
                             </div>
                         </div>
+
+                        {/* Terminal Scanlines Effect */}
+                        <div
+                            aria-hidden="true"
+                            className={`
+                                pointer-events-none
+                                absolute inset-0
+                                bg-[linear-gradient(
+                                    to_bottom,
+                                    ${isDarkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"}_1px,
+                                    transparent_1px
+                                )]
+                                bg-[length:100%_4px]
+                                opacity-10
+                            `}
+                        />
                     </div>
 
-                    {/* Personal Signature */}
-                    <div className="mt-8 flex items-center gap-3 text-sm text-gray-500">
-                        <div className="w-4 h-px bg-gradient-to-r from-emerald-500 to-transparent" />
+                    {/* Footer Note */}
+                    <div className={`mt-8 flex items-center gap-3 text-sm ${getSecondaryTextColor()}`}>
+                        <div className={`w-4 h-px bg-gradient-to-r ${isDarkMode ? "from-green-400" : "from-emerald-500"} to-transparent`} />
                         <span className="font-mono">crafted by SanthoshRaj K</span>
-                        <div className="w-4 h-px bg-gradient-to-r from-transparent to-emerald-500" />
+                        <div className={`w-4 h-px bg-gradient-to-r from-transparent ${isDarkMode ? "to-green-400" : "to-emerald-500"}`} />
                     </div>
                 </div>
-            </div>
-
-            {/* SCROLL */}
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 scale-90 sm:scale-100">
-                <button 
-                    onClick={handleScrollDown} 
-                    className="flex flex-col items-center gap-2"
-                    aria-label="Scroll to next section"
-                >
-                    <span className="text-xs tracking-widest text-gray-500">SCROLL</span>
-                    <ArrowDown className="text-gray-500 animate-bounce" aria-hidden="true" />
-                </button>
             </div>
         </section>
     )

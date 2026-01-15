@@ -79,8 +79,8 @@ const createParticles = (isDark: boolean, particleColors: string[]) => {
       y: Math.random() * 100,
       size: Math.random() * 1.5 + 0.5,
       color: isDark
-        ? 'rgba(255,255,255,0.12)'
-        : 'rgba(0,0,0,0.12)',
+        ? 'rgba(68, 183, 139, 0.12)' // Django teal color for dark mode
+        : 'rgba(9, 105, 81, 0.12)', // Django dark green for light mode
       speedX: (Math.random() - 0.5) * 30,
       speedY: (Math.random() - 0.5) * 30,
       type: 'line',
@@ -95,8 +95,8 @@ const createParticles = (isDark: boolean, particleColors: string[]) => {
       y: Math.random() * 100,
       size: Math.random() * 10 + 6,
       color: isDark
-        ? 'rgba(255,255,255,0.06)'
-        : 'rgba(0,0,0,0.06)',
+        ? 'rgba(68, 183, 139, 0.08)' // Django teal color for dark mode
+        : 'rgba(9, 105, 81, 0.08)', // Django dark green for light mode
       speedX: 0,
       speedY: 0,
       type: 'ring',
@@ -142,18 +142,20 @@ export default function ParticleBackground() {
 
   const isDark = resolvedTheme === 'dark'
 
-  // Memoize colors to prevent recalculation
+  // Memoize colors to prevent recalculation - Updated for Django theme
   const particleColors = useMemo(() => {
     return isDark
       ? [
-        'rgba(52, 211, 153, 0.7)',  // Reduced opacity for performance
-        'rgba(34, 197, 94, 0.7)',
-        'rgba(163, 230, 53, 0.7)',
+        'rgba(68, 183, 139, 0.6)',    // Django teal
+        'rgba(52, 211, 153, 0.6)',    // Emerald green
+        'rgba(16, 185, 129, 0.6)',    // Green
+        'rgba(34, 197, 94, 0.6)',     // Another green variant
       ]
       : [
-        'rgba(52, 211, 153, 0.4)',
-        'rgba(34, 197, 94, 0.4)',
-        'rgba(163, 230, 53, 0.4)',
+        'rgba(9, 105, 81, 0.4)',      // Django dark green
+        'rgba(16, 185, 129, 0.4)',    // Green
+        'rgba(34, 197, 94, 0.4)',     // Emerald
+        'rgba(52, 211, 153, 0.4)',    // Light emerald
       ]
   }, [isDark])
 
@@ -223,9 +225,11 @@ export default function ParticleBackground() {
                 : particle.type === 'line'
                   ? '2px'
                   : '50%',
-              opacity: particle.type === 'ring' ? 0.35 : 0.85,
+              opacity: particle.type === 'ring' 
+                ? (isDark ? 0.3 : 0.2) 
+                : (isDark ? 0.7 : 0.5),
               transform: transformStyle,
-              willChange: 'transform, opacity', // Hint to browser for optimization
+              willChange: 'transform, opacity', 
             }}
             variants={animationVariant}
             animate={isVisible ? "animate" : {}}

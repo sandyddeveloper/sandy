@@ -9,10 +9,34 @@ import VerticalSlider from './VerticalSlider'
 import ThemeToggle from '../shared/ThemeToggle'
 
 const NAV_ITEMS = [
-    { label: 'Skills', href: '#skills', icon: Zap, color: 'from-purple-500 to-pink-500' },
-    { label: 'Work', href: '#work', icon: Code2, color: 'from-blue-500 to-cyan-400' },
-    { label: 'Projects', href: '#projects', icon: Sparkles, color: 'from-orange-500 to-yellow-500' },
-    { label: 'Contact', href: '#contact', icon: Globe, color: 'from-green-500 to-emerald-400' },
+    {
+        label: 'Skills',
+        href: '#skills',
+        icon: Zap,
+        color: 'from-emerald-500 to-green-500',
+        darkColor: 'from-emerald-400 to-green-400'
+    },
+    {
+        label: 'Work',
+        href: '#work',
+        icon: Code2,
+        color: 'from-blue-500 to-cyan-500',
+        darkColor: 'from-blue-400 to-cyan-400'
+    },
+    {
+        label: 'Projects',
+        href: '#projects',
+        icon: Sparkles,
+        color: 'from-purple-500 to-pink-500',
+        darkColor: 'from-purple-400 to-pink-400'
+    },
+    {
+        label: 'Contact',
+        href: '#contact',
+        icon: Globe,
+        color: 'from-orange-500 to-yellow-500',
+        darkColor: 'from-orange-400 to-yellow-400'
+    },
 ]
 
 export default function MainNav() {
@@ -21,8 +45,8 @@ export default function MainNav() {
     const [showVerticalSlider, setShowVerticalSlider] = useState(false)
     const [isMobile, setIsMobile] = useState(false)
     const [activeHover, setActiveHover] = useState<string | null>(null)
+    const [isDark, setIsDark] = useState(false)
 
-    // Check if mobile
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 768)
@@ -33,12 +57,30 @@ export default function MainNav() {
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
 
-    // Initialize VerticalSlider only on client
     useEffect(() => {
         setShowVerticalSlider(true)
+
+        // Check initial theme
+        const checkTheme = () => {
+            const isDarkMode = document.documentElement.classList.contains('dark')
+            setIsDark(isDarkMode)
+        }
+
+        checkTheme()
+
+        // Listen for theme changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    checkTheme()
+                }
+            })
+        })
+
+        observer.observe(document.documentElement, { attributes: true })
+        return () => observer.disconnect()
     }, [])
 
-    // Scroll handler
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 20)
@@ -54,7 +96,6 @@ export default function MainNav() {
         setIsOpen(prev => !prev)
     }, [])
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             const target = e.target as HTMLElement
@@ -67,22 +108,25 @@ export default function MainNav() {
         return () => document.removeEventListener('click', handleClickOutside)
     }, [isOpen])
 
+    const getNavItemColor = useCallback((color: string, darkColor: string) => {
+        return isDark ? darkColor : color
+    }, [isDark])
+
     return (
         <>
             <LazyMotion features={domAnimation}>
-                {/* Navigation Container */}
                 <motion.nav
                     initial={{ y: -100 }}
                     animate={{ y: 0 }}
                     className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${scrolled
-                            ? 'shadow-black/20 backdrop-blur-lg rounded-lg'
-                            : 'bg-transparent'
+                        ? `${isDark ? 'bg-transparent' : 'bg-transparent'} backdrop-blur-lg shadow-lg ${isDark ? 'shadow-emerald-500/20' : 'shadow-emerald-200/50'}
+ rounded-lg`
+                        : 'bg-transparent'
                         }`}
                     style={{ zIndex: 999 }}
                 >
                     <div className="container-custom">
                         <div className="flex items-center justify-between">
-                            {/* Logo */}
                             <div className="relative group">
                                 <motion.a
                                     href="/"
@@ -91,29 +135,24 @@ export default function MainNav() {
                                     className="flex items-center gap-4 cursor-pointer pr-10 mt-[24px] lg:mt-14"
                                 >
                                     <div className="relative">
-                                        {/* Glow effect */}
                                         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-green-500 to-lime-500 rounded-full blur opacity-70 group-hover:opacity-100 transition-opacity" />
 
-                                        {/* Icon Container */}
-                                        <div className="relative bg-emerald-950 dark:bg-gray-900 rounded-full p-2 border border-emerald-500/20">
-                                            <Code2 className="text-emerald-300" size={24} />
+                                        <div className={`relative ${isDark ? 'bg-gray-900' : 'bg-white'} rounded-full p-2 border ${isDark ? 'border-emerald-500/20' : 'border-emerald-500/30'}`}>
+                                            <Code2 className={isDark ? "text-emerald-300" : "text-emerald-600"} size={24} />
                                         </div>
                                     </div>
 
-                                    {/* Brand Text */}
-                                    <span className="text-xl font-bold bg-gradient-to-r from-emerald-700 via-green-600 to-lime-500 bg-clip-text text-transparent">
+                                    <span className="text-xl font-bold bg-gradient-to-r from-emerald-700 via-green-600 to-lime-500 bg-clip-text text-transparent dark:from-emerald-400 dark:via-green-400 dark:to-lime-400">
                                         SanthoshRajk
                                     </span>
                                 </motion.a>
 
-                                {/* Tooltip */}
                                 <Tooltip
                                     position="bottom"
                                     text="Crafted with Django, Next.js 15 & Framer Motion"
                                 />
                             </div>
 
-                            {/* Desktop Navigation */}
                             <div className="hidden md:flex items-center gap-2 mobile-menu-container">
                                 {navItems.map((item) => (
                                     <NavItem
@@ -121,20 +160,22 @@ export default function MainNav() {
                                         {...item}
                                         isActive={activeHover === item.label}
                                         onHover={setActiveHover}
+                                        isDark={isDark}
                                     />
                                 ))}
 
-                                {/* Theme Toggle */}
                                 <div className="ml-4">
                                     <ThemeToggle />
                                 </div>
                             </div>
 
-                            {/* Mobile Menu Button - Enhanced with animation */}
                             <motion.button
                                 whileTap={{ scale: 0.9 }}
                                 onClick={handleMenuToggle}
-                                className="md:hidden glass-effect p-3 rounded-xl relative overflow-hidden group"
+                                className={`md:hidden p-3 rounded-xl relative overflow-hidden group backdrop-blur-sm border ${isDark
+                                    ? 'bg-gray-900/50 border-gray-800'
+                                    : 'bg-white/50 border-gray-200'
+                                    }`}
                                 aria-label={isOpen ? "Close menu" : "Open menu"}
                                 aria-expanded={isOpen}
                             >
@@ -145,6 +186,7 @@ export default function MainNav() {
                                             initial={{ rotate: -90, opacity: 0 }}
                                             animate={{ rotate: 0, opacity: 1 }}
                                             exit={{ rotate: 90, opacity: 0 }}
+                                            className={isDark ? "text-gray-200" : "text-gray-800"}
                                         >
                                             <X size={24} />
                                         </motion.div>
@@ -154,26 +196,25 @@ export default function MainNav() {
                                             initial={{ rotate: 90, opacity: 0 }}
                                             animate={{ rotate: 0, opacity: 1 }}
                                             exit={{ rotate: -90, opacity: 0 }}
+                                            className={isDark ? "text-gray-200" : "text-gray-800"}
                                         >
                                             <Menu size={24} />
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
 
-                                {/* Shimmer effect */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-emerald-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                             </motion.button>
                         </div>
                     </div>
 
-                    {/* Mobile Menu Dropdown - Enhanced with design from example */}
                     <AnimatePresence>
                         {isOpen && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="md:hidden glass-effect border-t border-gray-200 dark:border-white/10 overflow-hidden"
+                                className={`md:hidden ${isDark ? 'bg-transparent' : 'bg-transparent'} backdrop-blur-lg border-t ${isDark ? 'border-gray-800' : 'border-gray-200'} overflow-hidden`}
                                 style={{ zIndex: 1000 }}
                             >
                                 <div className="container-custom py-4 space-y-2">
@@ -182,52 +223,42 @@ export default function MainNav() {
                                             key={item.label}
                                             href={item.href}
                                             whileHover={{ x: 10 }}
-                                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-all group"
+                                            className={`flex items-center gap-3 p-3 rounded-lg transition-all group ${isDark
+                                                ? 'hover:bg-gray-800 text-white'
+                                                : 'hover:bg-gray-100 text-gray-800'
+                                                }`}
                                             onClick={() => setIsOpen(false)}
                                         >
-                                            <div className={`p-2 rounded-lg bg-gradient-to-br ${item.color}`}>
+                                            <div className={`p-2 rounded-lg bg-gradient-to-br ${getNavItemColor(item.color, item.darkColor)}`}>
                                                 <item.icon size={18} className="text-white" />
                                             </div>
-                                            <span className="font-medium text-gray-800 dark:text-white">
+                                            <span className="font-medium">
                                                 {item.label}
                                             </span>
-                                            <div className="ml-auto w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className={`ml-auto w-2 h-2 rounded-full bg-gradient-to-r ${getNavItemColor(item.color, item.darkColor)} opacity-0 group-hover:opacity-100 transition-opacity`} />
                                         </motion.a>
                                     ))}
 
-                                    {/* Separator */}
-                                    <div className="h-px bg-gray-200 dark:bg-white/10 my-2" />
+                                    <div className={`h-px my-2 ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`} />
 
-                                    {/* Theme Toggle - WRAP IT IN A DIV TO PREVENT UNMOUNTING
-                                    <div className="pt-4">
+                                    <div className="p-3">
                                         <ThemeToggle />
-                                    </div> */}
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </motion.nav>
-
-                {/* Active Indicator Line - From design example */}
                 <motion.div
                     className="fixed top-24 left-0 right-0 h-px z-40"
                     animate={{
                         background: activeHover
-                            ? `linear-gradient(90deg, transparent, var(--hover-color), transparent)`
-                            : 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent)'
+                            ? `linear-gradient(90deg, transparent, ${isDark ? 'rgba(52, 211, 153, 0.3)' : 'rgba(16, 185, 129, 0.3)'}, transparent)`
+                            : `linear-gradient(90deg, transparent, ${isDark ? 'rgba(52, 211, 153, 0.1)' : 'rgba(16, 185, 129, 0.1)'}, transparent)`
                     }}
-                    style={{
-                        '--hover-color': activeHover
-                            ? NAV_ITEMS.find(item => item.label === activeHover)?.color
-                                .split(' ')[1]
-                                .replace('from-', '#')
-                                .replace('500', '300')
-                            : '#3b82f6'
-                    } as React.CSSProperties}
                 />
             </LazyMotion>
 
-            {/* Vertical Slider - Desktop only */}
             {showVerticalSlider && (
                 <div className="fixed top-1/2 right-8 -translate-y-1/2 z-50 hidden md:block">
                     <VerticalSlider />

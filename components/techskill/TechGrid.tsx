@@ -19,9 +19,30 @@ export default function TechGrid({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalData, setModalData] = useState<any>({})
   const [hasMounted, setHasMounted] = useState(false)
+  const [isDark, setIsDark] = useState(true) // Default to dark for this component
 
   useEffect(() => {
     setHasMounted(true)
+    
+    // Check initial theme
+    const checkTheme = () => {
+      const isDarkMode = document.documentElement.classList.contains('dark')
+      setIsDark(isDarkMode)
+    }
+    
+    checkTheme()
+    
+    // Listen for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          checkTheme()
+        }
+      })
+    })
+    
+    observer.observe(document.documentElement, { attributes: true })
+    return () => observer.disconnect()
   }, [])
 
   const openModal = useCallback((data: any) => {
@@ -34,22 +55,64 @@ export default function TechGrid({
     return techStackData.filter(t => t.category === category)
   }, [category, techStackData])
 
+  // Theme-based styles
+  const getBackgroundGradient = () => {
+    return isDark
+      ? "bg-gradient-to-br from-[#041b13] via-[#052e1d] to-black"
+      : "bg-gradient-to-br from-emerald-50 via-green-50/40 to-lime-50/10"
+  }
+
+  const getTitleGradient = () => {
+    return isDark
+      ? "bg-gradient-to-r from-emerald-400 to-lime-400"
+      : "bg-gradient-to-r from-emerald-600 to-green-600"
+  }
+
+  const getSubtitleColor = () => {
+    return isDark ? "text-gray-300" : "text-gray-600"
+  }
+
+  const getFilterButtonStyle = (isActive: boolean) => {
+    if (isActive) {
+      return isDark
+        ? "!bg-emerald-500 !text-black shadow-lg !shadow-emerald-500/30 scale-105"
+        : "!bg-emerald-600 !text-white shadow-lg !shadow-emerald-600/30 scale-105"
+    }
+    return isDark
+      ? "!bg-white/10 hover:!bg-white/20 hover:scale-105"
+      : "!bg-emerald-500/10 hover:!bg-emerald-500/20 hover:scale-105"
+  }
+
+  const getPlaceholderBg = () => {
+    return isDark
+      ? "bg-gray-700/20"
+      : "bg-gray-300/20"
+  }
+
+  const getNoResultsTextColor = () => {
+    return isDark ? "text-gray-300" : "text-gray-700"
+  }
+
+  const getNoResultsSubTextColor = () => {
+    return isDark ? "text-gray-400" : "text-gray-500"
+  }
+
   if (!hasMounted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#041b13] via-[#052e1d] to-black text-white px-4 py-12">
+      <div className={`min-h-screen ${getBackgroundGradient()} text-white px-4 py-12`}>
         {/* Skeleton loader */}
         <div className="text-center mb-10">
-          <div className="h-12 bg-emerald-500/20 rounded-lg w-48 mx-auto mb-4 animate-pulse" />
-          <div className="h-4 bg-gray-700/20 rounded w-32 mx-auto animate-pulse" />
+          <div className={`h-12 rounded-lg w-48 mx-auto mb-4 animate-pulse ${getPlaceholderBg()}`} />
+          <div className={`h-4 rounded w-32 mx-auto animate-pulse ${getPlaceholderBg()}`} />
         </div>
         <div className="flex justify-center gap-2 mb-8">
           {["all", "frontend", "backend", "database", "tooling"].map(c => (
-            <div key={c} className="h-9 w-20 bg-gray-700/20 rounded-full animate-pulse" />
+            <div key={c} className={`h-9 w-20 rounded-full animate-pulse ${getPlaceholderBg()}`} />
           ))}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1000px] mx-auto">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-40 bg-gray-700/10 rounded-2xl animate-pulse" />
+            <div key={i} className={`h-40 rounded-2xl animate-pulse ${getPlaceholderBg()}`} />
           ))}
         </div>
       </div>
@@ -57,17 +120,17 @@ export default function TechGrid({
   }
 
   return (
-    <div suppressHydrationWarning className="min-h-screen bg-gradient-to-br from-[#041b13] via-[#052e1d] to-black text-white px-4 py-12">
+    <div suppressHydrationWarning className={`min-h-screen ${getBackgroundGradient()} ${isDark ? 'text-white' : 'text-gray-900'} px-4 py-12`}>
       <motion.div
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-center mb-10"
       >
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-400 to-lime-400 bg-clip-text text-transparent">
+        <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r ${getTitleGradient()} bg-clip-text text-transparent`}>
           Tech Stack & Education
         </h1>
-        <p className="text-gray-300 mt-3 text-sm sm:text-base">
+        <p className={`mt-3 text-sm sm:text-base ${getSubtitleColor()}`}>
           Django-green inspired modern frontend
         </p>
       </motion.div>
@@ -78,11 +141,7 @@ export default function TechGrid({
             key={c}
             suppressHydrationWarning
             onClick={() => category !== c && setCategory(c as any)}
-            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200
-              ${category === c
-                ? "!bg-emerald-500 !text-black shadow-lg !shadow-emerald-500/30 scale-105"
-                : "!bg-white/10 hover:!bg-white/20 hover:scale-105"
-              }`}
+            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${getFilterButtonStyle(category === c)}`}
             aria-label={`Filter by ${c} category`}
             aria-pressed={category === c}
           >
@@ -109,6 +168,7 @@ export default function TechGrid({
               <TechCard
                 tech={tech}
                 onClick={openModal}
+                isDark={isDark}
               />
             </motion.div>
           ))}
@@ -121,10 +181,10 @@ export default function TechGrid({
             className="text-center py-12"
           >
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">
+            <h3 className={`text-xl font-semibold mb-2 ${getNoResultsTextColor()}`}>
               No technologies found
             </h3>
-            <p className="text-gray-400">
+            <p className={getNoResultsSubTextColor()}>
               Try selecting a different category
             </p>
           </motion.div>
@@ -133,8 +193,8 @@ export default function TechGrid({
 
       <div className="mt-20">
         <div className="flex items-center gap-3 mb-6 justify-center">
-          <GraduationCap className="text-emerald-400 w-7 h-7 sm:w-8 sm:h-8" />
-          <h2 className="text-2xl sm:text-3xl font-bold">
+          <GraduationCap className={`w-7 h-7 sm:w-8 sm:h-8 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+          <h2 className={`text-2xl sm:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
             Education
           </h2>
         </div>
@@ -151,6 +211,7 @@ export default function TechGrid({
                 <EducationCard
                   edu={edu}
                   onClick={openModal}
+                  isDark={isDark}
                 />
               </motion.div>
             ))}
@@ -162,6 +223,7 @@ export default function TechGrid({
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         {...modalData}
+        isDark={isDark}
       />
     </div>
   )

@@ -1,13 +1,14 @@
 @import "tailwindcss";
 
+/* =========================================================
+   BASE RESET & PERFORMANCE
+========================================================= */
 
-/* Add these rules to your globals.css */
-
-/* Prevent layout shifts and ensure smooth resizing */
 html {
-  overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -17,45 +18,18 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeSpeed;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Mobile-specific optimizations */
-@media (max-width: 768px) {
-
-  /* Remove tap highlight */
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-  }
-
-  /* Disable smooth scrolling during resize */
-  html {
-    scroll-behavior: auto !important;
-  }
-
-  /* Optimize navigation during resize */
-  nav,
-  header {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000;
-    will-change: transform, opacity;
-  }
-
-  /* Force GPU acceleration for smooth resize */
-  .gpu-accelerate {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
-
-  /* Disable animations during resize to prevent lag */
-  .resize-active * {
-    transition: none !important;
-    animation: none !important;
-  }
+* {
+  box-sizing: border-box;
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Performance optimizations */
 img,
 video,
 canvas {
@@ -63,93 +37,156 @@ canvas {
   height: auto;
 }
 
-/* Remove default button styles that cause repaints */
 button {
-  -webkit-appearance: none;
   appearance: none;
   background: none;
   border: none;
   cursor: pointer;
 }
 
-/* Optimize transitions */
-* {
-  transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* =========================================================
+   MOBILE OPTIMIZATION
+========================================================= */
 
-/* REMOVE the @apply border-border line - it's causing the error */
-/* Base styles */
-@layer base {
+@media (max-width: 768px) {
   * {
-    /* Remove this line: @apply border-border; */
-    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
 
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
-    transition: background-color 0.3s ease, color 0.3s ease;
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  nav,
+  header,
+  .gpu-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+  }
+
+  .resize-active * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 
-/* Theme variables - Add these */
+/* =========================================================
+   THEME VARIABLES (DJANGO FRIENDLY)
+========================================================= */
+
 :root {
+  /* Core */
   --background: #ffffff;
   --foreground: #171717;
+
   --card: #f9fafb;
   --card-foreground: #171717;
-  --primary: #3b82f6;
+
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
+
   --muted: #f3f4f6;
   --muted-foreground: #6b7280;
+
+  --border: #e5e7eb;
+
+  /* Terminal (Light Mode) */
+  --terminal-bg: #f9fafb;
+  --terminal-border: #e5e7eb;
+  --terminal-header: #eef2f7;
+  --terminal-text: #065f46;
+  --terminal-muted: #6b7280;
+  --terminal-caret: #10b981;
+  --terminal-glow: rgba(16, 185, 129, 0.25);
 }
 
 .dark {
+  /* Core */
   --background: #0a0a0a;
   --foreground: #ededed;
+
   --card: #1a1a1a;
   --card-foreground: #ededed;
+
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
+
   --muted: #262626;
   --muted-foreground: #a1a1a1;
+
+  --border: #262626;
+
+  /* Terminal (Dark Mode) */
+  --terminal-bg: #0b0f14;
+  --terminal-border: rgba(16, 185, 129, 0.2);
+  --terminal-header: #0f1623;
+  --terminal-text: #34d399;
+  --terminal-muted: #9ca3af;
+  --terminal-caret: #34d399;
+  --terminal-glow: rgba(16, 185, 129, 0.6);
 }
 
-/* Custom utilities */
+/* =========================================================
+   UTILITIES
+========================================================= */
+
 @layer utilities {
+
+  /* Glassmorphism */
   .glass-effect {
-    @apply bg-white/20 backdrop-blur-md border border-gray-200;
-    @apply dark:bg-black/20 dark:border-white/10;
+    @apply backdrop-blur-md border;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--border);
   }
 
+  .dark .glass-effect {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Terminal */
+  .terminal-surface {
+    background-color: var(--terminal-bg);
+    border-color: var(--terminal-border);
+    color: var(--terminal-text);
+  }
+
+  .terminal-header {
+    background-color: var(--terminal-header);
+    border-color: var(--terminal-border);
+  }
+
+  .terminal-glow {
+    box-shadow: 0 0 30px var(--terminal-glow);
+  }
+
+  /* Text */
   .text-gradient {
     @apply bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent;
-    @apply dark:from-blue-400 dark:to-purple-500;
   }
 
-  .bg-gradient {
-    @apply bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500;
+  .dark .text-gradient {
+    @apply from-blue-400 to-purple-500;
   }
 
-  .shadow-glow {
-    @apply shadow-lg shadow-blue-500/10;
-    @apply dark:shadow-blue-500/20;
+  /* Layout */
+  .container-custom {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
+/* =========================================================
+   SCROLLBAR (DJANGO ADMIN + DEV FRIENDLY)
+========================================================= */
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #66ff1f;
+  background-color: #e5e7eb;
 }
 
 .dark ::-webkit-scrollbar-track {
@@ -157,18 +194,17 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #000000, #1aff00);
+  background: linear-gradient(to bottom, #000000, #22c55e);
   border-radius: 9999px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #44f63b, #15ff00);
+  background: linear-gradient(to bottom, #4ade80, #16a34a);
 }
 
-/* Container alignment fix */
-.container-custom {
-  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
-}
+/* =========================================================
+   TOAST / ANIMATIONS
+========================================================= */
 
 [data-sonner-toast],
 [data-rht-toast] {
@@ -184,5 +220,23 @@ html {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   TERMINAL CARET BLINK
+========================================================= */
+
+@keyframes blink {
+
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+
+  25%,
+  75% {
+    opacity: 0;
   }
 }

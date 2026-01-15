@@ -27,7 +27,6 @@ export async function sendMail(data: {
       replyTo: data.email,
       subject: `[${data.subject}] ${fullName}`,
 
-      /* ---------- TEXT FALLBACK ---------- */
       text: `
 New contact form submission
 
@@ -40,7 +39,6 @@ Message:
 ${data.message}
       `.trim(),
 
-      /* ---------- HTML EMAIL UI ---------- */
       html: `
 <!DOCTYPE html>
 <html>
@@ -120,7 +118,6 @@ ${data.message}
   }
 }
 
-/* ---------- HELPERS ---------- */
 
 function infoRow(label: string, value: string) {
   return `
