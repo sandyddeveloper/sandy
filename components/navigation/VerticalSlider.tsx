@@ -4,7 +4,7 @@ import { motion, useMotionValue } from "framer-motion"
 import { ChevronUp, ChevronDown } from "lucide-react"
 import { useEffect, useState, useCallback, useMemo, useRef } from "react"
 
-const SECTIONS = ["Hero", "Skills", "Work", "Projects", "Contact"]
+const SECTIONS = ["Hero", "Skills", "Work", "Projects","Blogs", "Contact"]
 
 const activeLabelVariants = {
   hidden: { opacity: 0, y: 8 },

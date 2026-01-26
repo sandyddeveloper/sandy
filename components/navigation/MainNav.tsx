@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion'
-import { Menu, X, Code2, Sparkles, Zap, Globe } from 'lucide-react'
+import { Menu, X, Code2, Sparkles, Zap, Globe, Book } from 'lucide-react'
 import NavItem from './NavItem'
 import Tooltip from './Tooltip'
 import VerticalSlider from './VerticalSlider'
@@ -28,6 +28,13 @@ const NAV_ITEMS = [
         href: '#projects',
         icon: Sparkles,
         color: 'from-purple-500 to-pink-500',
+        darkColor: 'from-purple-400 to-pink-400'
+    },
+    {
+        label: 'Blogs',
+        href: '#blog',
+        icon: Book,
+        color: 'from-emerald-500 to-teal-500',
         darkColor: 'from-purple-400 to-pink-400'
     },
     {

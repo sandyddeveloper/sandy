@@ -5,6 +5,8 @@ import HeroSection from "@/components/sections/Hero";
 import ProjectsSection from "@/components/sections/Projects";
 import TechStackPage from "@/components/sections/Skills";
 import WorkExperience from "@/components/sections/WorkExperience";
+import BlogSectionPage from "@/pages/BlogSectionPage";
+
 
 export default function Home() {
   return (
@@ -15,10 +17,9 @@ export default function Home() {
       <TechStackPage />
       <WorkExperience />
       <ProjectsSection />
+      <BlogSectionPage />
       <ContactSection />
       <Footer />
-
-
     </>
   );
 }
