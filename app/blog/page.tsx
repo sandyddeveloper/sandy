@@ -397,8 +397,7 @@ export default function BlogListPage() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="flex-1 bg-transparent border-none outline-none font-mono text-sm placeholder:font-mono"
                       style={{
-                        color: colors.terminalText,
-                        placeholderColor: colors.terminalMuted
+                        color: colors.terminalText
                       }}
                     />
                     {searchQuery && (

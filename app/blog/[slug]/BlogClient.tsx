@@ -447,11 +447,14 @@ function DjangoTechStack() {
 }
 
 export default function BlogPostPage() {
-    const { slug } = useParams<{ slug: string }>();
+    const params = useParams<{ slug?: string }>();
     const { theme, systemTheme } = useTheme();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
-    const blog = getBlogPost(slug || "");
+
+    // ✅ params-safe + slug-safe
+    const slug = params?.slug ?? "";
+    const blog = slug ? getBlogPost(slug) : null;
 
     const heroRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -482,7 +485,7 @@ export default function BlogPostPage() {
     useEffect(() => {
         const handleScroll = () => {
             if (!heroRef.current) return;
-            
+
             const heroHeight = heroRef.current.clientHeight;
             const scrollTop = window.scrollY;
             const progress = Math.min(scrollTop / heroHeight, 1);
@@ -682,8 +685,8 @@ export default function BlogPostPage() {
                         className="font-bold tracking-tight mt-20 mb-8 scroll-mt-32 group transition-colors duration-300"
                         style={{
                             fontSize: block.level === 2 ? '1.875rem' :
-                                     block.level === 3 ? '1.5rem' :
-                                     block.level === 4 ? '1.25rem' : '1.875rem'
+                                block.level === 3 ? '1.5rem' :
+                                    block.level === 4 ? '1.25rem' : '1.875rem'
                         }}
                     >
                         <span className="relative">
@@ -862,7 +865,7 @@ export default function BlogPostPage() {
                     {/* Banner Image with Parallax */}
                     <motion.div
                         className="absolute inset-0"
-                        style={{ 
+                        style={{
                             transform: `translateY(${bgY}) scale(${bgScale})`,
                         }}
                     >
@@ -871,7 +874,7 @@ export default function BlogPostPage() {
                             alt={blog.title}
                             className="w-full h-full object-cover"
                         />
-                        
+
                         {/* Overlay gradient */}
                         <div className="absolute inset-0 transition-colors duration-300"
                             style={{
