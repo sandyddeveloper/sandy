@@ -74,7 +74,7 @@ export default function AboutMeModal({ open, onClose, isDark = true }: Props) {
         } else {
             setMountedIsDark(isDark)
         }
-        
+
         // Listen for theme changes if isDark prop is not provided
         if (isDark === undefined) {
             const observer = new MutationObserver((mutations) => {
@@ -85,7 +85,7 @@ export default function AboutMeModal({ open, onClose, isDark = true }: Props) {
                     }
                 })
             })
-            
+
             observer.observe(document.documentElement, { attributes: true })
             return () => observer.disconnect()
         }
@@ -227,11 +227,11 @@ export default function AboutMeModal({ open, onClose, isDark = true }: Props) {
                                 </h2>
 
                                 <p className={`mt-2 text-sm ${getSubtitleColor()}`}>
-                                    Full Stack Developer
+                                    Software Developer
                                 </p>
 
                                 {/* RESUME */}
-                                <a
+                                {/* <a
                                     href="/resume/Santhoshraj-Resume.pdf"
                                     download
                                     className={`
@@ -244,21 +244,19 @@ export default function AboutMeModal({ open, onClose, isDark = true }: Props) {
                                 >
                                     <Download size={16} />
                                     Download Resume
-                                </a>
+                                </a> */}
                             </div>
 
                             {/* SUMMARY */}
                             <div className="lg:col-span-2">
                                 <p className={`leading-relaxed max-w-3xl ${getTextColor()}`}>
-                                    Full Stack Developer with strong experience in building scalable,
-                                    performance-driven web applications using modern frontend and backend technologies.
+                                    Experienced Software Developer with hands-on expertise in building scalable,
+                                    high-performance applications across web and mobile platforms. Strong focus on
+                                    backend architecture, API design, and system optimization.
                                 </p>
 
                                 <p className={`mt-4 max-w-3xl ${getTextLightColor()}`}>
-                                    BCA graduate (2024) from Agurchand Manmull Jain College, trained at QSpiders
-                                    in SQL & Web Technologies. Completed a 6-month internship at Shiash as a
-                                    Python Full Stack / Django Developer, followed by 1 year of freelancing
-                                    delivering 6+ live projects. Currently working at{" "}
+                                    Currently working at{" "}
                                     <a
                                         href="https://datamoo.ai/"
                                         target="_blank"
@@ -266,7 +264,17 @@ export default function AboutMeModal({ open, onClose, isDark = true }: Props) {
                                         className={`inline-flex items-center gap-1 hover:underline ${getLinkColor()}`}
                                     >
                                         DataMoo.ai <ExternalLink size={14} />
-                                    </a>.
+                                    </a>{" "}
+                                    as a Backend Developer, contributing to a mutual funds platform by designing
+                                    and developing robust APIs that power both web and mobile applications.
+                                    Actively involved in building secure, scalable systems and improving performance
+                                    across services.
+                                </p>
+
+                                <p className={`mt-4 max-w-3xl ${getTextLightColor()}`}>
+                                    Previously worked on multiple real-world projects and freelancing engagements,
+                                    delivering end-to-end solutions using modern technologies with a strong emphasis
+                                    on clean architecture and maintainable code.
                                 </p>
                             </div>
                         </div>
@@ -274,7 +282,7 @@ export default function AboutMeModal({ open, onClose, isDark = true }: Props) {
                         {/* COUNTERS */}
                         <div className="grid grid-cols-3 gap-6 max-w-xl mx-auto mb-16">
                             <AnimatedCounter value={1} label="Years Experience" isDark={mountedIsDark} />
-                            <AnimatedCounter value={4} label="Live Projects" isDark={mountedIsDark} />
+                            <AnimatedCounter value={2} label="Live Projects" isDark={mountedIsDark} />
                             <AnimatedCounter value={1} label="Years Freelancing" isDark={mountedIsDark} />
                         </div>
 
@@ -407,10 +415,10 @@ function TimelineItem({
     getTimelineTitleColor?: () => string
     getTimelineContentColor?: () => string
 }) {
-    const iconStyle = getTimelineIconStyle ? getTimelineIconStyle() : (isDark 
-        ? "bg-emerald-500/10 text-emerald-400" 
+    const iconStyle = getTimelineIconStyle ? getTimelineIconStyle() : (isDark
+        ? "bg-emerald-500/10 text-emerald-400"
         : "bg-emerald-500/10 text-emerald-600")
-    
+
     const titleColor = getTimelineTitleColor ? getTimelineTitleColor() : (isDark ? "text-white" : "text-gray-900")
     const contentColor = getTimelineContentColor ? getTimelineContentColor() : (isDark ? "text-gray-400" : "text-gray-600")
 

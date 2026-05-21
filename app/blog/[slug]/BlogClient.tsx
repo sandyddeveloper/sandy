@@ -607,7 +607,7 @@ export default function BlogPostPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease }}
                         viewport={{ once: true, margin: "-100px" }}
-                        className="my-20 group cursor-zoom-in"
+                        className="my-10 sm:my-20 group cursor-zoom-in"
                         onClick={() => window.open(block.value, "_blank")}
                     >
                         <div className="relative rounded-2xl overflow-hidden border transition-colors duration-300"
@@ -654,7 +654,7 @@ export default function BlogPostPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease }}
                         viewport={{ once: true }}
-                        className="my-12"
+                        className="my-8 sm:my-12"
                     >
                         <CodeBlock
                             code={block.value}
@@ -682,7 +682,7 @@ export default function BlogPostPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease }}
                         viewport={{ once: true }}
-                        className="font-bold tracking-tight mt-20 mb-8 scroll-mt-32 group transition-colors duration-300"
+                        className="font-bold tracking-tight mt-12 sm:mt-20 mb-6 sm:mb-8 scroll-mt-32 group transition-colors duration-300"
                         style={{
                             fontSize: block.level === 2 ? '1.875rem' :
                                 block.level === 3 ? '1.5rem' :
@@ -714,7 +714,7 @@ export default function BlogPostPage() {
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, ease }}
                         viewport={{ once: true }}
-                        className="my-12 pl-8 border-l-4 italic text-xl p-6 rounded-r-2xl transition-colors duration-300"
+                        className="my-8 sm:my-12 pl-4 sm:pl-8 border-l-4 italic text-lg sm:text-xl p-4 sm:p-6 rounded-r-2xl transition-colors duration-300"
                         style={{
                             borderColor: `${colors.secondary}50`,
                             background: `linear-gradient(to right, ${colors.secondary}05, transparent)`
@@ -860,7 +860,7 @@ export default function BlogPostPage() {
                 {/* Banner Image Section */}
                 <section
                     ref={heroRef}
-                    className="relative h-[50vh] min-h-[500px] max-h-[600px] overflow-hidden"
+                    className="relative h-[40vh] sm:h-[50vh] min-h-[300px] sm:min-h-[500px] max-h-[600px] overflow-hidden"
                 >
                     {/* Banner Image with Parallax */}
                     <motion.div
@@ -937,7 +937,7 @@ export default function BlogPostPage() {
                             className="relative"
                         >
                             {/* Content Card */}
-                            <div className="rounded-2xl border p-8 mb-12 transition-colors duration-300"
+                            <div className="rounded-2xl border p-5 sm:p-8 mb-8 sm:mb-12 transition-colors duration-300"
                                 style={{
                                     backgroundColor: colors.card,
                                     borderColor: colors.border,
@@ -963,7 +963,7 @@ export default function BlogPostPage() {
                                 </div>
 
                                 {/* Title */}
-                                <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
+                                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight tracking-tight break-words">
                                     <span className="bg-clip-text text-transparent transition-all duration-300"
                                         style={{
                                             backgroundImage: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})`
@@ -974,17 +974,17 @@ export default function BlogPostPage() {
                                 </h1>
 
                                 {/* Excerpt */}
-                                <p className="text-xl mb-8 leading-relaxed transition-colors duration-300"
+                                <p className="text-lg sm:text-xl mb-6 sm:mb-8 leading-relaxed transition-colors duration-300"
                                     style={{ color: colors.textMuted }}
                                 >
                                     {blog.excerpt}
                                 </p>
 
                                 {/* Meta Information */}
-                                <div className="flex flex-wrap items-center gap-6 text-sm transition-colors duration-300 pt-6 border-t"
+                                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-6 text-xs sm:text-sm transition-colors duration-300 pt-4 sm:pt-6 border-t"
                                     style={{ borderColor: colors.border }}
                                 >
-                                    <div className="flex flex-wrap items-center gap-6">
+                                    <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                                         <div className="flex items-center gap-2"
                                             style={{ color: colors.text }}
                                         >
@@ -1017,7 +1017,9 @@ export default function BlogPostPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-6 ml-auto">
+                                    <div className="flex flex-wrap items-center gap-3 sm:gap-6 sm:ml-auto mt-2 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-none pt-4 sm:pt-0"
+                                        style={{ borderColor: colors.border }}
+                                    >
                                         <button
                                             onClick={handleLike}
                                             className="flex items-center gap-2 transition-all group"
@@ -1130,7 +1132,7 @@ export default function BlogPostPage() {
 
                     <div
                         className={cn(
-                            "mx-auto px-6 py-12 transition-all duration-300",
+                            "mx-auto px-4 sm:px-6 py-8 sm:py-12 transition-all duration-300",
                             readingMode ? "max-w-4xl" : "max-w-7xl"
                         )}
                     >
@@ -1198,11 +1200,11 @@ export default function BlogPostPage() {
                                         borderTop: `1px solid ${colors.border}`
                                     }}
                                 >
-                                    <div className="flex flex-wrap items-center justify-between gap-4">
-                                        <div className="flex items-center gap-4">
+                                    <div className="flex flex-col xl:flex-row flex-wrap items-center justify-between gap-4 sm:gap-6">
+                                        <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4 w-full xl:w-auto">
                                             <button
                                                 onClick={handleLike}
-                                                className="px-6 py-3 rounded-xl flex items-center gap-2 transition-all border duration-300 hover:scale-105"
+                                                className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl flex items-center gap-2 transition-all border duration-300 hover:scale-105 flex-1 sm:flex-none justify-center"
                                                 style={hasLiked ? {
                                                     backgroundColor: `${colors.destructive}10`,
                                                     color: colors.destructive,
@@ -1222,7 +1224,7 @@ export default function BlogPostPage() {
 
                                             <button
                                                 onClick={handleShare}
-                                                className="px-6 py-3 rounded-xl border flex items-center gap-2 transition-colors duration-300 hover:scale-105"
+                                                className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl border flex items-center gap-2 transition-colors duration-300 hover:scale-105 flex-1 sm:flex-none justify-center"
                                                 style={{
                                                     backgroundColor: `${colors.secondary}10`,
                                                     color: colors.text,
@@ -1235,7 +1237,7 @@ export default function BlogPostPage() {
 
                                             <button
                                                 onClick={handleCopyLink}
-                                                className="px-6 py-3 rounded-xl flex items-center gap-2 transition-colors border duration-300 hover:scale-105"
+                                                className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl flex items-center gap-2 transition-colors border duration-300 hover:scale-105 flex-1 sm:flex-none justify-center"
                                                 style={copied ? {
                                                     backgroundColor: `${colors.success}10`,
                                                     color: colors.success,
@@ -1260,10 +1262,10 @@ export default function BlogPostPage() {
                                             </button>
                                         </div>
 
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center justify-center gap-2 sm:gap-4 w-full xl:w-auto">
                                             <button
                                                 onClick={() => window.print()}
-                                                className="p-3 rounded-xl border transition-colors duration-300 hover:scale-110"
+                                                className="p-2 sm:p-3 rounded-xl border transition-colors duration-300 hover:scale-110"
                                                 style={{
                                                     backgroundColor: `${colors.secondary}10`,
                                                     color: colors.text,
@@ -1276,7 +1278,7 @@ export default function BlogPostPage() {
 
                                             <button
                                                 onClick={() => setIsBookmarked(!isBookmarked)}
-                                                className="p-3 rounded-xl transition-colors border duration-300 hover:scale-110"
+                                                className="p-2 sm:p-3 rounded-xl transition-colors border duration-300 hover:scale-110"
                                                 style={isBookmarked ? {
                                                     backgroundColor: `${colors.secondary}20`,
                                                     color: colors.text,

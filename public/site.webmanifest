@@ -1,0 +1,8 @@
+{
+  "name": "Santhoshraj Portfolio",
+  "short_name": "Santhoshraj",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#041b13"
+}

@@ -251,7 +251,7 @@ export default function BlogListPage() {
           />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 z-10">
+        <div className="relative w-full max-w-7xl 2xl:max-w-[1600px] min-[2560px]:max-w-[2000px] min-[3840px]:max-w-[3000px] min-[7680px]:max-w-[6000px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 z-10">
           {/* Header with Back Button, Logo, and Theme Toggle */}
           <header className="flex justify-between items-center mb-8 lg:mb-12">
             {/* Left: Back Button */}
@@ -314,7 +314,7 @@ export default function BlogListPage() {
 
 
             {/* Title */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl 2xl:text-8xl min-[2560px]:text-9xl min-[3840px]:text-[10rem] min-[7680px]:text-[16rem] font-bold mb-6 min-[3840px]:mb-12 min-[7680px]:mb-24 tracking-tight min-[3840px]:leading-tight">
               <span className="bg-clip-text text-transparent transition-all duration-300"
                 style={{
                   backgroundImage: `linear-gradient(to right, ${isDark ? colors.terminalText : colors.text}, ${colors.secondary})`,
@@ -333,7 +333,7 @@ export default function BlogListPage() {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-8 sm:mb-12 transition-colors duration-300"
+            <p className="text-lg sm:text-xl lg:text-2xl 2xl:text-3xl min-[2560px]:text-4xl min-[3840px]:text-5xl min-[7680px]:text-8xl max-w-2xl 2xl:max-w-4xl min-[2560px]:max-w-5xl min-[3840px]:max-w-7xl min-[7680px]:max-w-[120rem] mx-auto mb-8 sm:mb-12 min-[3840px]:mb-20 min-[7680px]:mb-40 transition-colors duration-300 min-[3840px]:leading-relaxed"
               style={{
                 color: colors.textMuted,
                 textShadow: isDark ? '0 1px 2px rgba(0,0,0,0.3)' : '0 1px 2px rgba(255,255,255,0.3)'
@@ -344,7 +344,7 @@ export default function BlogListPage() {
             </p>
 
             {/* Search in Terminal Style */}
-            <div className="max-w-xl mx-auto">
+            <div className="max-w-xl 2xl:max-w-2xl min-[2560px]:max-w-3xl min-[3840px]:max-w-5xl min-[7680px]:max-w-[80rem] mx-auto">
               <div className="rounded-xl sm:rounded-2xl border overflow-hidden shadow-lg transition-all duration-300 backdrop-blur-sm"
                 style={{
                   backgroundColor: isDark
@@ -355,7 +355,7 @@ export default function BlogListPage() {
                 }}
               >
                 {/* Terminal Header */}
-                <div className="flex items-center gap-2 px-4 py-3 border-b"
+                <div className="flex items-center gap-2 px-4 py-3 min-[3840px]:px-8 min-[3840px]:py-6 min-[7680px]:px-16 min-[7680px]:py-12 border-b"
                   style={{
                     backgroundColor: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(241, 245, 249, 0.9)',
                     borderColor: colors.terminalBorder
@@ -372,7 +372,7 @@ export default function BlogListPage() {
                       style={{ backgroundColor: '#10B981' }}
                     />
                   </div>
-                  <span className="text-xs font-mono ml-2"
+                  <span className="text-xs 2xl:text-sm min-[3840px]:text-xl min-[7680px]:text-4xl font-mono ml-2"
                     style={{ color: colors.terminalMuted }}
                   >
                     search.py
@@ -381,7 +381,7 @@ export default function BlogListPage() {
 
                 {/* Search Input */}
                 <div className="p-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-[3840px]:gap-6 min-[7680px]:gap-12">
                     <span className="text-sm font-mono"
                       style={{ color: colors.terminalText }}
                     >
@@ -395,7 +395,7 @@ export default function BlogListPage() {
                       placeholder="find articles --query=''"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="flex-1 bg-transparent border-none outline-none font-mono text-sm placeholder:font-mono"
+                      className="flex-1 bg-transparent border-none outline-none font-mono text-sm 2xl:text-base min-[2560px]:text-lg min-[3840px]:text-2xl min-[7680px]:text-5xl placeholder:font-mono"
                       style={{
                         color: colors.terminalText
                       }}
@@ -426,13 +426,13 @@ export default function BlogListPage() {
           backgroundColor: `${colors.secondary}${isDark ? '05' : '02'}`
         }}
       >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+        <div className="w-full max-w-7xl 2xl:max-w-[1600px] min-[2560px]:max-w-[2000px] min-[3840px]:max-w-[3000px] min-[7680px]:max-w-[6000px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 min-[3840px]:gap-6 min-[7680px]:gap-12">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-sm font-medium transition-all duration-300"
+                className="px-4 py-2 sm:px-5 sm:py-2.5 2xl:px-8 2xl:py-4 min-[3840px]:px-12 min-[3840px]:py-6 min-[7680px]:px-24 min-[7680px]:py-12 rounded-full text-sm 2xl:text-lg min-[2560px]:text-xl min-[3840px]:text-3xl min-[7680px]:text-6xl font-medium transition-all duration-300"
                 style={activeCategory === category ? {
                   backgroundColor: colors.secondary,
                   color: '#FFFFFF', // Always white for active state
@@ -453,7 +453,7 @@ export default function BlogListPage() {
 
       {/* Blog Grid */}
       <section className="py-12 sm:py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="w-full max-w-7xl 2xl:max-w-[1600px] min-[2560px]:max-w-[2000px] min-[3840px]:max-w-[3000px] min-[7680px]:max-w-[6000px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
           {/* Featured Post */}
           {filteredPosts.length > 0 && (
             <motion.article
@@ -484,7 +484,7 @@ export default function BlogListPage() {
 
                   <div className="grid lg:grid-cols-2 gap-0">
                     {/* Image */}
-                    <div className="relative h-48 sm:h-64 lg:h-auto overflow-hidden">
+                    <div className="relative h-48 sm:h-64 lg:h-full min-[3840px]:h-[40rem] min-[7680px]:h-[80rem] overflow-hidden">
                       <img
                         src={filteredPosts[0].coverImage}
                         alt={filteredPosts[0].title}
@@ -498,7 +498,7 @@ export default function BlogListPage() {
 
                       {/* Featured Badge */}
                       <div className="absolute top-12 sm:top-14 left-4">
-                        <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-colors duration-300"
+                        <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 min-[3840px]:px-6 min-[3840px]:py-3 min-[7680px]:px-12 min-[7680px]:py-6 rounded-full text-xs 2xl:text-sm min-[3840px]:text-2xl min-[7680px]:text-5xl font-semibold flex items-center gap-1.5 min-[3840px]:gap-3 min-[7680px]:gap-6 transition-colors duration-300"
                           style={{
                             backgroundColor: colors.accent,
                             color: colors.secondary
@@ -530,7 +530,7 @@ export default function BlogListPage() {
                       </div>
 
                       {/* Title */}
-                      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 transition-colors duration-300 group-hover:text-primary"
+                      <h2 className="text-2xl sm:text-3xl lg:text-4xl 2xl:text-5xl min-[2560px]:text-6xl min-[3840px]:text-7xl min-[7680px]:text-[10rem] font-bold mb-3 sm:mb-4 min-[3840px]:mb-8 min-[7680px]:mb-16 min-[3840px]:leading-tight transition-colors duration-300 group-hover:text-primary"
                         style={{
                           color: colors.text,
                           WebkitTextFillColor: colors.text
@@ -540,14 +540,14 @@ export default function BlogListPage() {
                       </h2>
 
                       {/* Excerpt */}
-                      <p className="text-sm sm:text-base mb-4 sm:mb-6 line-clamp-3 transition-colors duration-300"
+                      <p className="text-sm sm:text-base 2xl:text-lg min-[2560px]:text-xl min-[3840px]:text-3xl min-[7680px]:text-6xl mb-4 sm:mb-6 min-[3840px]:mb-12 min-[7680px]:mb-24 line-clamp-3 min-[3840px]:leading-relaxed transition-colors duration-300"
                         style={{ color: colors.textMuted }}
                       >
                         {filteredPosts[0].excerpt}
                       </p>
 
                       {/* Meta */}
-                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm mb-4 sm:mb-6 transition-colors duration-300"
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 min-[3840px]:gap-8 min-[7680px]:gap-16 text-xs sm:text-sm 2xl:text-base min-[3840px]:text-2xl min-[7680px]:text-5xl mb-4 sm:mb-6 min-[3840px]:mb-12 min-[7680px]:mb-24 transition-colors duration-300"
                         style={{ color: colors.textSubtle }}
                       >
                         <div className="flex items-center gap-2">
@@ -568,7 +568,7 @@ export default function BlogListPage() {
                       <div className="flex items-center gap-2 font-mono font-medium group-hover:gap-4 transition-all duration-300"
                         style={{ color: colors.terminalText }}
                       >
-                        <span className="text-sm">$ python manage.py read post</span>
+                        <span className="text-sm 2xl:text-base min-[3840px]:text-2xl min-[7680px]:text-5xl">$ python manage.py read post</span>
                         <ArrowRight className="h-4 w-4" />
                       </div>
                     </div>
@@ -579,7 +579,7 @@ export default function BlogListPage() {
           )}
 
           {/* Grid Posts */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 min-[2560px]:grid-cols-5 min-[3840px]:grid-cols-6 min-[7680px]:grid-cols-8 gap-6 sm:gap-8 min-[3840px]:gap-12 min-[7680px]:gap-24">
   {filteredPosts.slice(1).map((post, index) => (
     <motion.article
       key={post.id}
@@ -616,7 +616,7 @@ export default function BlogListPage() {
           </div>
 
           {/* Image */}
-          <div className="relative h-44 sm:h-48 mt-8 overflow-hidden">
+          <div className="relative h-44 sm:h-48 2xl:h-64 min-[2560px]:h-80 min-[3840px]:h-[30rem] min-[7680px]:h-[60rem] mt-8 overflow-hidden">
             <img
               src={post.coverImage}
               alt={post.title}
@@ -626,7 +626,7 @@ export default function BlogListPage() {
 
             {/* Category */}
             <span
-              className="absolute top-4 right-4 px-2.5 py-1 text-xs font-mono rounded-full"
+              className="absolute top-4 right-4 px-2.5 py-1 min-[3840px]:px-6 min-[3840px]:py-3 min-[7680px]:px-12 min-[7680px]:py-6 text-xs 2xl:text-sm min-[3840px]:text-2xl min-[7680px]:text-5xl font-mono rounded-full"
               style={{
                 backgroundColor: "rgba(34,197,94,0.15)",
                 color: "#4ADE80",
@@ -643,7 +643,7 @@ export default function BlogListPage() {
               {post.tags.slice(0, 2).map(tag => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 text-xs font-mono rounded"
+                  className="px-2 py-0.5 min-[3840px]:px-4 min-[3840px]:py-2 min-[7680px]:px-8 min-[7680px]:py-4 text-xs 2xl:text-sm min-[3840px]:text-xl min-[7680px]:text-4xl font-mono rounded"
                   style={{
                     backgroundColor: "rgba(34,197,94,0.15)",
                     color: "#86EFAC",
@@ -657,8 +657,8 @@ export default function BlogListPage() {
             {/* Title with animated underline */}
             <h3
               className="
-                relative inline-block text-lg sm:text-xl font-semibold
-                mb-2 line-clamp-2
+                relative inline-block text-lg sm:text-xl 2xl:text-2xl min-[2560px]:text-3xl min-[3840px]:text-5xl min-[7680px]:text-[8rem] font-semibold
+                mb-2 min-[3840px]:mb-6 min-[7680px]:mb-12 line-clamp-2 min-[3840px]:leading-tight
                 after:absolute after:left-0 after:-bottom-1
                 after:h-[2px] after:w-full
                 after:origin-left after:scale-x-0
@@ -673,7 +673,7 @@ export default function BlogListPage() {
 
             {/* Excerpt */}
             <p
-              className="text-sm mb-4 line-clamp-2 flex-1"
+              className="text-sm 2xl:text-base min-[2560px]:text-lg min-[3840px]:text-2xl min-[7680px]:text-5xl mb-4 min-[3840px]:mb-8 min-[7680px]:mb-16 line-clamp-2 flex-1 min-[3840px]:leading-relaxed"
               style={{ color: colors.textMuted }}
             >
               {post.excerpt}
@@ -681,7 +681,7 @@ export default function BlogListPage() {
 
             {/* Meta */}
             <div
-              className="flex items-center justify-between text-xs pt-4 border-t"
+              className="flex items-center justify-between text-xs 2xl:text-sm min-[3840px]:text-2xl min-[7680px]:text-5xl pt-4 min-[3840px]:pt-8 min-[7680px]:pt-16 border-t"
               style={{
                 borderColor: "rgba(34,197,94,0.15)",
                 color: colors.textSubtle,

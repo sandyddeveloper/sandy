@@ -17,7 +17,7 @@ export default function Home() {
       <TechStackPage />
       <WorkExperience />
       <ProjectsSection />
-      <BlogSectionPage />
+      {/* <BlogSectionPage /> */}
       <ContactSection />
       <Footer />
     </>

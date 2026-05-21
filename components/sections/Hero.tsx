@@ -413,44 +413,46 @@ export default function HeroSection() {
                         aria-atomic="true"
                         className={`
                             relative
-                            w-fit
+                            w-full sm:w-fit
+                            max-w-full
                             rounded-xl
                             ${getTerminalBg()}
                             overflow-hidden
                             font-mono
                             transition-colors duration-300
+                            shadow-2xl
                         `}
                     >
                         {/* Terminal Header */}
-                        <div className={`flex items-center gap-2 px-4 py-2 ${getTerminalHeaderBg()} border-b ${getBorderAccentColor()}`}>
-                            <span className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-red-500/80" : "bg-red-400/80"}`} />
-                            <span className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-yellow-500/80" : "bg-yellow-400/80"}`} />
-                            <span className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-green-500/80" : "bg-emerald-500/80"}`} />
-                            <span className={`ml-3 text-xs ${getSecondaryTextColor()}`}>terminal</span>
+                        <div className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 ${getTerminalHeaderBg()} border-b ${getBorderAccentColor()}`}>
+                            <span className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${isDarkMode ? "bg-red-500/80" : "bg-red-400/80"}`} />
+                            <span className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${isDarkMode ? "bg-yellow-500/80" : "bg-yellow-400/80"}`} />
+                            <span className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${isDarkMode ? "bg-green-500/80" : "bg-emerald-500/80"}`} />
+                            <span className={`ml-2 sm:ml-3 text-[10px] sm:text-xs md:text-sm font-medium ${getSecondaryTextColor()}`}>terminal</span>
                         </div>
 
                         {/* Terminal Content */}
-                        <div className="p-4 min-w-[280px]">
-                            <div className={`text-xs ${getSecondaryTextColor()} mb-1`}>
+                        <div className="p-4 sm:p-5 md:p-6 lg:p-8 w-full min-w-0 sm:min-w-[320px] md:min-w-[400px] lg:min-w-[450px] xl:min-w-[500px]">
+                            <div className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-semibold ${getSecondaryTextColor()} mb-2 sm:mb-3`}>
                                 CURRENT ROLE
                             </div>
 
-                            <div className={`flex items-center gap-2 ${isDarkMode ? "text-green-300" : "text-emerald-600"} text-lg tracking-wide`}>
-                                <span className={getAccentColor()}>$</span>
-                                <span className={isDarkMode ? "drop-shadow-[0_0_8px_rgba(68,183,139,0.6)]" : "drop-shadow-[0_0_8px_rgba(68,183,139,0.3)]"}>
+                            <div className={`flex items-start gap-2 sm:gap-3 ${isDarkMode ? "text-green-300" : "text-emerald-600"} text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl tracking-wide`}>
+                                <span className={`${getAccentColor()} shrink-0`}>$</span>
+                                <span className={`break-words flex-1 ${isDarkMode ? "drop-shadow-[0_0_8px_rgba(68,183,139,0.6)]" : "drop-shadow-[0_0_8px_rgba(68,183,139,0.3)]"}`}>
                                     {typedText}
+                                    <span
+                                        aria-hidden="true"
+                                        className={`
+                                            inline-block
+                                            w-[1.5px] sm:w-[2px] md:w-[3px]
+                                            h-[1em]
+                                            ml-1 sm:ml-2 align-middle
+                                            ${isDarkMode ? "bg-green-300" : "bg-emerald-500"}
+                                            animate-[blink_1s_steps(2,start)_infinite]
+                                        `}
+                                    />
                                 </span>
-
-                                <span
-                                    aria-hidden="true"
-                                    className={`
-                                        inline-block
-                                        w-[2px]
-                                        h-5
-                                        ${isDarkMode ? "bg-green-300" : "bg-emerald-500"}
-                                        animate-[blink_1s_steps(2,start)_infinite]
-                                    `}
-                                />
                             </div>
                         </div>
 
