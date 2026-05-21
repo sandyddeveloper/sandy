@@ -30,13 +30,13 @@ const NAV_ITEMS = [
         color: 'from-purple-500 to-pink-500',
         darkColor: 'from-purple-400 to-pink-400'
     },
-    {
-        label: 'Blogs',
-        href: '#blog',
-        icon: Book,
-        color: 'from-emerald-500 to-teal-500',
-        darkColor: 'from-purple-400 to-pink-400'
-    },
+    // {
+    //     label: 'Blogs',
+    //     href: '#blog',
+    //     icon: Book,
+    //     color: 'from-emerald-500 to-teal-500',
+    //     darkColor: 'from-purple-400 to-pink-400'
+    // },
     {
         label: 'Contact',
         href: '#contact',
